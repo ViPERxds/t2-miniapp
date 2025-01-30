@@ -346,9 +346,10 @@
         }
 
         function getBookingsCount(date, time) {
-            // Получаем количество бронирований из localStorage
-            const bookings = JSON.parse(localStorage.getItem(`bookings_${date}_${time}`) || '0');
-            return bookings;
+            // Получаем все бронирования
+            const allBookings = JSON.parse(localStorage.getItem('all_bookings') || '{}');
+            // Возвращаем количество бронирований для конкретной даты и времени
+            return allBookings[date]?.[time]?.length || 0;
         }
 
         function saveBooking(userId, date, time) {
@@ -361,9 +362,12 @@
                     action: 'booking'
                 };
 
-                // Увеличиваем счетчик бронирований
-                const currentCount = getBookingsCount(date, time);
-                localStorage.setItem(`bookings_${date}_${time}`, JSON.stringify(currentCount + 1));
+                // Сохраняем бронирование в общий список
+                const allBookings = JSON.parse(localStorage.getItem('all_bookings') || '{}');
+                if (!allBookings[date]) allBookings[date] = {};
+                if (!allBookings[date][time]) allBookings[date][time] = [];
+                allBookings[date][time].push(userId);
+                localStorage.setItem('all_bookings', JSON.stringify(allBookings));
                 
                 // Сохраняем информацию о бронировании пользователя
                 const userBookings = JSON.parse(localStorage.getItem(`user_${userId}_bookings`) || '[]');
@@ -376,7 +380,7 @@
                     slot.style.backgroundColor = '#FF1C7D';
                     slot.style.color = 'white';
                 }
-                infoElement.textContent = `${currentCount + 1} человек забронировали слот на это время`;
+                infoElement.textContent = `${getBookingsCount(date, time)} человек забронировали слот на это время`;
 
                 // Отправляем данные в бота
                 window.Telegram.WebApp.sendData(JSON.stringify(data));
@@ -384,8 +388,8 @@
         }
 
         function hasUserBooked(userId, date, time) {
-            const userBookings = JSON.parse(localStorage.getItem(`user_${userId}_bookings`) || '[]');
-            return userBookings.some(b => b.date === date && b.time === time);
+            const allBookings = JSON.parse(localStorage.getItem('all_bookings') || '{}');
+            return allBookings[date]?.[time]?.includes(userId) || false;
         }
 
         // Получаем параметры из URL
@@ -405,15 +409,21 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Изначально показываем 0 человек
-        infoElement.textContent = '0 человек забронировали слот на это время';
-
-        // Отмечаем уже забронированные слоты этим пользователем
+        // При загрузке страницы проверяем все слоты
         timeSlots.forEach(slot => {
             const time = slot.textContent;
+            const count = getBookingsCount(date, time);
+            
+            // Если есть бронирования на это время
+            if (count > 0) {
+                slot.style.backgroundColor = '#FF1C7D';
+                slot.style.color = 'white';
+            }
+            
+            // Если это время забронировано текущим пользователем
             if (hasUserBooked(userId, date, time)) {
                 slot.classList.add('selected');
-                const count = getBookingsCount(date, time);
+                document.querySelector('.time-box h1').textContent = time;
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             }
         });
@@ -423,18 +433,11 @@
             slot.addEventListener('click', function() {
                 const time = this.textContent;
                 
-                if (hasUserBooked(userId, date, time)) {
-                    return;
-                }
-
                 timeSlots.forEach(s => {
-                    if (!hasUserBooked(userId, date, s.textContent)) {
-                        s.classList.remove('selected');
-                    }
+                    s.classList.remove('selected');
                 });
 
                 this.classList.add('selected');
-                
                 document.querySelector('.time-box h1').textContent = time;
                 
                 const count = getBookingsCount(date, time);
