@@ -342,11 +342,15 @@
     <script>
         // В начале скрипта добавим функции для работы с бронированиями
         function getBookings() {
-            return JSON.parse(localStorage.getItem('bookings') || '{}');
+            const bookings = localStorage.getItem('bookings');
+            console.log('Raw bookings:', bookings); // Для отладки
+            return JSON.parse(bookings || '{}');
         }
 
         function saveBooking(userId, date, time) {
             const bookings = getBookings();
+            console.log('Current bookings:', bookings); // Для отладки
+            
             if (!bookings[date]) bookings[date] = {};
             if (!bookings[date][time]) bookings[date][time] = [];
             
@@ -355,11 +359,13 @@
                 bookings[date][time].push(userId);
             }
             
+            console.log('Saving bookings:', bookings); // Для отладки
             localStorage.setItem('bookings', JSON.stringify(bookings));
         }
 
         function getBookingsCount(date, time) {
             const bookings = getBookings();
+            console.log('Checking bookings for', date, time, ':', bookings[date]?.[time]); // Для отладки
             return bookings[date]?.[time]?.length || 0;
         }
 
@@ -390,11 +396,12 @@
             const time = slot.textContent;
             const count = getBookingsCount(date, time);
             
+            console.log('Slot:', time, 'Count:', count); // Для отладки
+            
             // Если есть бронирования на это время, показываем их
             if (count > 0) {
                 slot.style.backgroundColor = '#FF1C7D';
                 slot.style.color = 'white';
-                // Обновляем информацию о количестве бронирований
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             }
         });
