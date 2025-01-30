@@ -318,8 +318,11 @@
 
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user_id');
-        const username = urlParams.get('username');
+        // Декодируем параметры из URL
+        const userId = decodeURIComponent(urlParams.get('user_id'));
+        const username = decodeURIComponent(urlParams.get('username'));
+        
+        console.log('URL params:', { userId, username }); // Для отладки
 
         // Функция для проверки бронирований
         function getBookedDates(userId) {
@@ -435,8 +438,11 @@
             const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
             const date = `${day}.${month}`;
 
-            // Используем полный URL для GitHub Pages
-            window.location.href = `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+            console.log('Selected date:', date); // Для отладки
+            console.log('Redirecting to:', `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`); // Для отладки
+
+            // Пробуем другой способ перенаправления
+            window.location.assign(`https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`);
         });
 
         // При загрузке страницы устанавливаем текущий месяц
