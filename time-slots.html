@@ -62,9 +62,9 @@
         .back-link {
             color: #FF3495;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 16px;
             font-family: 'T2 Rooftop', sans-serif;
-            font-weight: 600;
+            font-weight: 900;
             background: none;
             border: none;
             padding: 0;
@@ -118,8 +118,7 @@
             font-family: 'T2 Halvar Breit XBd', sans-serif;
         }
 
-        .time-slot.selected,
-        .time-slot.highlight {
+        .time-slot.selected {
             background-color: #FF3495;
             color: white;
         }
@@ -133,14 +132,12 @@
             color: white;
             padding: 35px 20px;
             border-radius: 15px;
-            text-align: center;
-            font-size: 16px;
+            font-size: 12px;
             margin: 20px 0 30px;
             font-family: 'T2 Rooftop', sans-serif;
             min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
+            line-height: 1.2;
         }
 
         .join-btn {
@@ -157,6 +154,28 @@
             letter-spacing: 0.5px;
         }
 
+        /* Специальный шрифт только для нужных элементов */
+        .time-box h1,
+        .time-box .date,
+        .time-slot,
+        .join-btn {
+            font-family: 'T2 Halvar Breit XBd', sans-serif;
+        }
+
+        /* Добавляем стили для контейнера контента */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-title {
+            color: #FF3495;
+            font-size: 48px;
+            margin: 0;
+            font-family: 'T2 Halvar Breit XBd';
+        }
+
+        /* Обновляем стили для всплывающих элементов */
         .confirmation-popup {
             background-color: #FF3495;
             color: white;
@@ -195,7 +214,7 @@
         .privileges-btn-container {
             background-color: #A7FC00;
             position: fixed;
-            top: calc(40% + 70px);
+            top: calc(40% + 70px); /* Располагаем прямо под розовым уведомлением */
             left: 50%;
             transform: translate(-50%, 0);
             width: calc(100% - 40px);
@@ -231,6 +250,7 @@
             display: none;
         }
 
+        /* Добавляем правильные шрифты */
         @font-face {
             font-family: 'T2 Rooftop';
             src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
@@ -244,31 +264,18 @@
             font-weight: normal;
             font-style: normal;
         }
-
-        .time-slot.selected {
-            background-color: #FF3495;
-            color: white;
-        }
-
-        .time-slot:hover {
-            background-color: #f0f0f0;
-        }
-
-        .time-slot.selected:hover {
-            background-color: #FF3495;
-        }
     </style>
 </head>
 <body>
     <div class="mobile-container">
         <div class="content-wrapper">
             <div class="header">
-                <a href="calendar.html" class="back-link">Назад</a>
+                <button class="back-link" onclick="window.history.back()">Назад</button>
             </div>
 
             <div class="time-box">
                 <h1>ВРЕМЯ.</h1>
-                <h1 class="date" style="color: #FF3495;">09.01</h1>
+                <h1 class="date" style="color: #FF3495;"></h1>
             </div>
 
             <div class="time-rows">
@@ -298,7 +305,7 @@
                 </div>
             </div>
 
-            <div class="participants-info" id="participants-info" style="display: none;">
+            <div class="participants-info" id="participants-info">
                 8 человек забронировали слот на это время
             </div>
 
@@ -306,6 +313,7 @@
         </div>
     </div>
 
+    <!-- Добавляем HTML для всплывающего уведомления -->
     <div class="overlay"></div>
     <div class="confirmation-popup">
         <button class="close-btn">✕</button>
@@ -316,102 +324,146 @@
     </div>
 
     <script>
-        // Убедимся, что Telegram WebApp доступен
-        if (!window.Telegram.WebApp) {
-            alert('Пожалуйста, откройте приложение через Telegram');
+        // В начале скрипта добавим функции для работы с бронированиями
+        function getBookings() {
+            return JSON.parse(localStorage.getItem('bookings') || '{}');
         }
 
-        // Инициализация Telegram WebApp
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        function saveBooking(userId, date, time) {
+            const bookings = getBookings();
+            if (!bookings[date]) bookings[date] = {};
+            if (!bookings[date][time]) bookings[date][time] = [];
+            
+            // Проверяем, не забронировал ли уже этот пользователь это время
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+            }
+            
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+        }
 
+        function getBookingsCount(date, time) {
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.length || 0;
+        }
+
+        function hasUserBooked(userId, date, time) {
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.includes(userId) || false;
+        }
+
+        // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
         const date = urlParams.get('date');
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
-        // Устанавливаем дату в заголовке
+        // Устанавливаем дату в заголовок
         document.querySelector('.time-box .date').textContent = date;
 
-        // Добавляем обработчики для временных слотов
+        // Обработка временных слотов
         const timeSlots = document.querySelectorAll('.time-slot');
+        const infoElement = document.getElementById('participants-info');
+        
+        // Изначально показываем 0 человек
+        infoElement.textContent = '0 человек забронировали слот на это время';
+
+        // Отмечаем уже забронированные слоты этим пользователем
+        timeSlots.forEach(slot => {
+            const time = slot.textContent;
+            if (hasUserBooked(userId, date, time)) {
+                slot.classList.add('selected');
+                slot.style.backgroundColor = '#FF3495';
+                slot.style.color = 'white';
+                const count = getBookingsCount(date, time);
+                infoElement.textContent = `${count} человек забронировали слот на это время`;
+            }
+        });
+
+        // Обработчик клика по временному слоту
         timeSlots.forEach(slot => {
             slot.addEventListener('click', function() {
+                const time = this.textContent;
+                
+                // Если этот слот уже забронирован этим пользователем, ничего не делаем
+                if (hasUserBooked(userId, date, time)) {
+                    return;
+                }
+
                 // Убираем выделение со всех слотов
-                timeSlots.forEach(s => s.classList.remove('selected'));
-                // Добавляем выделение на выбранный слот
+                timeSlots.forEach(s => {
+                    if (!hasUserBooked(userId, date, s.textContent)) {
+                        s.classList.remove('selected');
+                    }
+                });
+
+                // Добавляем выделение текущему слоту
                 this.classList.add('selected');
+                
+                // Показываем количество бронирований для выбранного времени
+                const count = getBookingsCount(date, time);
+                infoElement.textContent = `${count} человек забронировали слот на это время`;
             });
         });
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedSlot = document.querySelector('.time-slot.selected');
-            if (selectedSlot) {
-                const selectedTime = selectedSlot.textContent;
-                const selectedDate = document.querySelector('.time-box .date').textContent;
+            const selectedSlot = document.querySelector('.time-slot.selected:not([style*="background-color"])');
+            if (!selectedSlot) {
+                alert('Пожалуйста, выберите время');
+                return;
+            }
+
+            const selectedTime = selectedSlot.textContent;
+            
+            // Форматируем дату
+            const [day, month] = date.split('.');
+            const months = ['января', 'февраля', 'марта', 'апреля'];
+            const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
+            
+            // Показываем уведомление
+            const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
+            document.querySelector('.confirmation-text').textContent = confirmationText;
+            document.querySelector('.overlay').style.display = 'block';
+            document.querySelector('.confirmation-popup').style.display = 'block';
+            document.querySelector('.privileges-btn-container').style.display = 'block';
+
+            // Сохраняем бронь
+            saveBooking(userId, date, selectedTime);
+            
+            // Отмечаем слот как забронированный
+            selectedSlot.style.backgroundColor = '#FF3495';
+            selectedSlot.style.color = 'white';
+
+            // Отправляем данные в Telegram с небольшой задержкой
+            setTimeout(() => {
+                const data = {
+                    date: date,
+                    time: selectedTime,
+                    user_id: userId,
+                    username: username
+                };
                 
                 try {
-                    // Отправляем данные в Telegram WebApp
-                    const data = {
-                        date: selectedDate,
-                        time: selectedTime,
-                        user_id: userId,
-                        username: username
-                    };
-                    console.log('Sending data:', data); // Для отладки
                     window.Telegram.WebApp.sendData(JSON.stringify(data));
-                    window.Telegram.WebApp.close();
                 } catch (error) {
-                    console.error('Error sending data:', error);
-                    alert('Произошла ошибка при отправке данных. Попробуйте еще раз.');
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Попробуйте еще раз.');
                 }
-            } else {
-                alert('Пожалуйста, выберите время');
-            }
+            }, 500); // Задержка 500мс для гарантированного показа уведомления
         });
 
-        // Удалим ненужные обработчики событий
-        document.querySelector('.confirmation-popup .close-btn')?.addEventListener('click', function() {
+        // Обработчики закрытия
+        document.querySelector('.confirmation-popup .close-btn').addEventListener('click', function() {
+            document.querySelector('.overlay').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+            document.querySelector('.privileges-btn-container').style.display = 'none';
             window.Telegram.WebApp.close();
         });
 
-        document.querySelector('.privileges-btn')?.addEventListener('click', function() {
+        document.querySelector('.privileges-btn').addEventListener('click', function() {
             window.Telegram.WebApp.close();
         });
-
-        async function checkBookedSlots() {
-            try {
-                const response = await fetch('/api/booked-slots', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        date: document.querySelector('.time-box .date').textContent
-                    })
-                });
-                const data = await response.json();
-                
-                if (data.bookedSlots) {
-                    data.bookedSlots.forEach(slot => {
-                        const timeSlots = document.querySelectorAll('.time-slot');
-                        timeSlots.forEach(timeSlot => {
-                            if (timeSlot.textContent === slot) {
-                                timeSlot.classList.add('selected');
-                                timeSlot.style.pointerEvents = 'none';
-                                timeSlot.style.backgroundColor = '#FF3495';
-                                timeSlot.style.cursor = 'not-allowed';
-                            }
-                        });
-                    });
-                }
-            } catch (error) {
-                console.error('Ошибка при получении забронированных слотов:', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', checkBookedSlots);
     </script>
 </body>
 </html> 
