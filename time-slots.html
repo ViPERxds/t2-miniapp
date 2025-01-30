@@ -345,27 +345,47 @@
             return JSON.parse(localStorage.getItem('bookings') || '{}');
         }
 
-        function saveBooking(userId, date, time) {
-            const bookings = getBookings();
-            if (!bookings[date]) bookings[date] = {};
-            if (!bookings[date][time]) bookings[date][time] = [];
-            
-            // Проверяем, не забронировал ли уже этот пользователь это время
-            if (!bookings[date][time].includes(userId)) {
-                bookings[date][time].push(userId);
-            }
-            
-            localStorage.setItem('bookings', JSON.stringify(bookings));
+        function getBookingsCount(date, time) {
+            // Получаем количество бронирований из localStorage
+            const bookings = JSON.parse(localStorage.getItem(`bookings_${date}_${time}`) || '0');
+            return bookings;
         }
 
-        function getBookingsCount(date, time) {
-            const bookings = getBookings();
-            return bookings[date]?.[time]?.length || 0;
+        function saveBooking(userId, date, time) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const data = {
+                    date: date,
+                    time: time,
+                    user_id: userId,
+                    username: username,
+                    action: 'booking'
+                };
+
+                // Увеличиваем счетчик бронирований
+                const currentCount = getBookingsCount(date, time);
+                localStorage.setItem(`bookings_${date}_${time}`, JSON.stringify(currentCount + 1));
+                
+                // Сохраняем информацию о бронировании пользователя
+                const userBookings = JSON.parse(localStorage.getItem(`user_${userId}_bookings`) || '[]');
+                userBookings.push({ date, time });
+                localStorage.setItem(`user_${userId}_bookings`, JSON.stringify(userBookings));
+                
+                // Обновляем отображение
+                const slot = Array.from(timeSlots).find(s => s.textContent === time);
+                if (slot) {
+                    slot.style.backgroundColor = '#FF1C7D';
+                    slot.style.color = 'white';
+                }
+                infoElement.textContent = `${currentCount + 1} человек забронировали слот на это время`;
+
+                // Отправляем данные в бота
+                window.Telegram.WebApp.sendData(JSON.stringify(data));
+            }
         }
 
         function hasUserBooked(userId, date, time) {
-            const bookings = getBookings();
-            return bookings[date]?.[time]?.includes(userId) || false;
+            const userBookings = JSON.parse(localStorage.getItem(`user_${userId}_bookings`) || '[]');
+            return userBookings.some(b => b.date === date && b.time === time);
         }
 
         // Получаем параметры из URL
@@ -424,7 +444,7 @@
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedSlot = document.querySelector('.time-slot.selected:not([style*="background-color"])');
+            const selectedSlot = document.querySelector('.time-slot.selected');
             if (!selectedSlot) {
                 alert('Пожалуйста, выберите время');
                 return;
@@ -437,31 +457,8 @@
             const months = ['января', 'февраля', 'марта', 'апреля'];
             const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
             
-            // Показываем уведомление
-            const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
-            document.querySelector('.confirmation-text').textContent = confirmationText;
-            document.querySelector('.overlay').style.display = 'block';
-            document.querySelector('.confirmation-popup').style.display = 'block';
-            document.querySelector('.privileges-btn-container').style.display = 'block';
-
             // Сохраняем бронь
             saveBooking(userId, date, selectedTime);
-            
-            // Отправляем данные в Telegram только если WebApp доступен
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = {
-                    date: date,
-                    time: selectedTime,
-                    user_id: userId,
-                    username: username
-                };
-                
-                try {
-                    window.Telegram.WebApp.sendData(JSON.stringify(data));
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
         });
 
         // Обработчики закрытия
