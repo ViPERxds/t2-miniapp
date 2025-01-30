@@ -318,11 +318,8 @@
 
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
-        // Декодируем параметры из URL
-        const userId = decodeURIComponent(urlParams.get('user_id'));
-        const username = decodeURIComponent(urlParams.get('username'));
-        
-        console.log('URL params:', { userId, username }); // Для отладки
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
 
         // Функция для проверки бронирований
         function getBookedDates(userId) {
@@ -426,24 +423,16 @@
         `;
         document.head.appendChild(style);
 
-        // Обработчик кнопки "ДАЛЕЕ"
+        // Исправляем обработчик кнопки "ДАЛЕЕ"
         document.querySelector('.next-btn').addEventListener('click', function() {
             const selectedDate = document.querySelector('.date.selected');
-            if (!selectedDate) {
+            if (selectedDate) {
+                const day = selectedDate.textContent.padStart(2, '0');
+                const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
+                const date = `${day}.${month}`;
+                window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+            } else {
                 alert('Пожалуйста, выберите дату');
-                return;
-            }
-
-            const day = selectedDate.textContent.padStart(2, '0');
-            const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
-            const date = `${day}.${month}`;
-
-            // Используем Telegram WebApp для перехода
-            if (window.Telegram && window.Telegram.WebApp) {
-                const url = `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
-                window.Telegram.WebApp.openLink(url, {
-                    try_instant_view: true
-                });
             }
         });
 
