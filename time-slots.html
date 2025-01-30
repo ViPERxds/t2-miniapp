@@ -385,11 +385,6 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Показываем количество бронирований для первого слота при загрузке
-        const firstSlotTime = timeSlots[0].textContent;
-        const initialCount = getBookingsCount(date, firstSlotTime);
-        infoElement.textContent = `${initialCount} человек забронировали слот на это время`;
-
         // Отмечаем уже забронированные слоты этим пользователем
         timeSlots.forEach(slot => {
             const time = slot.textContent;
@@ -399,10 +394,7 @@
             if (count > 0) {
                 slot.style.backgroundColor = '#FF1C7D';
                 slot.style.color = 'white';
-            }
-            
-            if (hasUserBooked(userId, date, time)) {
-                slot.classList.add('selected');
+                // Обновляем информацию о количестве бронирований
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             }
         });
@@ -412,17 +404,15 @@
             slot.addEventListener('click', function() {
                 const time = this.textContent;
                 
+                // Убираем выделение со всех слотов
+                timeSlots.forEach(s => s.classList.remove('selected'));
+                
+                // Добавляем выделение текущему слоту
+                this.classList.add('selected');
+                
                 // Показываем количество бронирований при клике
                 const count = getBookingsCount(date, time);
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
-
-                timeSlots.forEach(s => {
-                    if (!hasUserBooked(userId, date, s.textContent)) {
-                        s.classList.remove('selected');
-                    }
-                });
-
-                this.classList.add('selected');
                 document.querySelector('.time-box h1').textContent = time;
             });
         });
