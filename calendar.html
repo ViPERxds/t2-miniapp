@@ -438,11 +438,13 @@
             const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
             const date = `${day}.${month}`;
 
-            console.log('Selected date:', date); // Для отладки
-            console.log('Redirecting to:', `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`); // Для отладки
-
-            // Пробуем другой способ перенаправления
-            window.location.assign(`https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`);
+            // Используем Telegram WebApp для перехода
+            if (window.Telegram && window.Telegram.WebApp) {
+                const url = `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+                window.Telegram.WebApp.openLink(url, {
+                    try_instant_view: true
+                });
+            }
         });
 
         // При загрузке страницы устанавливаем текущий месяц
