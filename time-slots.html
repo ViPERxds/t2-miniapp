@@ -284,27 +284,6 @@
     </style>
 </head>
 <body>
-    <!-- Подключаем Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
-    <script>
-        // Инициализация Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBJ9lF5qI0j1jgqh4UvBvB2yCzHW_5683Y",
-            authDomain: "t2ss-daa7d.firebaseapp.com",
-            databaseURL: "https://t2ss-daa7d.firebaseio.com",
-            projectId: "t2ss-daa7d",
-            storageBucket: "t2ss-daa7d.appspot.com",
-            messagingSenderId: "110095999579",
-            appId: "1:110095999579:web:e5fb809fde338f408ad57e",
-            measurementId: "G-Q1G8JFF80B"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-    </script>
-
     <div class="mobile-container">
         <div class="content-wrapper">
             <div class="header">
@@ -366,52 +345,27 @@
             return JSON.parse(localStorage.getItem('bookings') || '{}');
         }
 
-        function getBookingsCount(date, time) {
-            return new Promise((resolve) => {
-                database.ref(`bookings/${date}/${time}`).once('value')
-                    .then((snapshot) => {
-                        resolve(snapshot.val()?.length || 0);
-                    });
-            });
+        function saveBooking(userId, date, time) {
+            const bookings = getBookings();
+            if (!bookings[date]) bookings[date] = {};
+            if (!bookings[date][time]) bookings[date][time] = [];
+            
+            // Проверяем, не забронировал ли уже этот пользователь это время
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+            }
+            
+            localStorage.setItem('bookings', JSON.stringify(bookings));
         }
 
-        function saveBooking(userId, date, time) {
-            database.ref(`bookings/${date}/${time}`).once('value')
-                .then((snapshot) => {
-                    const bookings = snapshot.val() || [];
-                    if (!bookings.includes(userId)) {
-                        bookings.push(userId);
-                        database.ref(`bookings/${date}/${time}`).set(bookings);
-            
-                        // Обновляем отображение
-                        const slot = Array.from(timeSlots).find(s => s.textContent === time);
-                        if (slot) {
-                            slot.style.backgroundColor = '#FF1C7D';
-                            slot.style.color = 'white';
-                        }
-                        
-                        // Отправляем данные в Telegram
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            const data = {
-                                date: date,
-                                time: time,
-                                user_id: userId,
-                                username: username,
-                                action: 'booking'
-                            };
-                            window.Telegram.WebApp.sendData(JSON.stringify(data));
-                        }
-                    }
-                });
+        function getBookingsCount(date, time) {
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.length || 0;
         }
 
         function hasUserBooked(userId, date, time) {
-            return new Promise((resolve) => {
-                database.ref(`bookings/${date}/${time}`).once('value')
-                    .then((snapshot) => {
-                        resolve(snapshot.val()?.includes(userId) || false);
-                    });
-            });
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.includes(userId) || false;
         }
 
         // Получаем параметры из URL
@@ -431,24 +385,17 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Слушаем изменения бронирований
-        database.ref(`bookings/${date}`).on('value', (snapshot) => {
-            const bookings = snapshot.val() || {};
-            
-            // Обновляем все слоты
-            timeSlots.forEach(slot => {
-                const time = slot.textContent;
-                const count = bookings[time]?.length || 0;
-                
-                if (count > 0) {
-                    slot.style.backgroundColor = '#FF1C7D';
-                    slot.style.color = 'white';
-                }
-                
-                if (slot.classList.contains('selected')) {
-                    infoElement.textContent = `${count} человек забронировали слот на это время`;
-                }
-            });
+        // Изначально показываем 0 человек
+        infoElement.textContent = '0 человек забронировали слот на это время';
+
+        // Отмечаем уже забронированные слоты этим пользователем
+        timeSlots.forEach(slot => {
+            const time = slot.textContent;
+            if (hasUserBooked(userId, date, time)) {
+                slot.classList.add('selected');
+                const count = getBookingsCount(date, time);
+                infoElement.textContent = `${count} человек забронировали слот на это время`;
+            }
         });
 
         // Обработчик клика по временному слоту
@@ -499,6 +446,22 @@
 
             // Сохраняем бронь
             saveBooking(userId, date, selectedTime);
+            
+            // Отправляем данные в Telegram только если WebApp доступен
+            if (window.Telegram && window.Telegram.WebApp) {
+                const data = {
+                    date: date,
+                    time: selectedTime,
+                    user_id: userId,
+                    username: username
+                };
+                
+                try {
+                    window.Telegram.WebApp.sendData(JSON.stringify(data));
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
         });
 
         // Обработчики закрытия
