@@ -55,11 +55,10 @@
         }
 
         .title {
-            flex-grow: 1;
             text-align: center;
             font-size: 16px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            font-weight: 500;
+            font-family: 'T2 Rooftop', sans-serif;
+            margin-bottom: 20px;
         }
 
         .date-box {
@@ -70,28 +69,21 @@
         }
 
         .date-box h1 {
-            margin: 0;
-            font-family: 'HalvarBreitBlack', sans-serif;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .date-title {
             color: white;
-            font-size: 48px;
+            font-size: 42px;
             margin: 0;
-            font-family: 'HalvarBreitBlack', sans-serif;
+            font-family: 'T2 Halvar Breit XBd', sans-serif;
             font-weight: 900;
-            letter-spacing: 1px;
         }
 
-        .selected-date {
-            font-family: 'T2HalvarBreitExtraBold';
-            font-size: 36px;
-            margin: 0;
+        .date-box .selected-date {
             color: #FF3495;
-            display: block !important;
-            margin-top: 10px;
+            font-size: 52px;
+            margin: 0;
+            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            font-weight: 900;
+            display: block;
+            margin-top: 5px;
         }
 
         .month-wrapper {
@@ -249,13 +241,10 @@
 </head>
 <body>
     <div class="mobile-container">
-        <div class="header">
-            <a href="index.html" class="back-link">Назад</a>
-            <div class="title">Больше, чем встреча</div>
-        </div>
+        <div class="title">Больше, чем встреча</div>
 
         <div class="date-box">
-            <h1 class="date-title">ДАТА</h1>
+            <h1>ДАТА</h1>
             <h1 class="selected-date"></h1>
         </div>
 
@@ -320,41 +309,24 @@
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
-        // Добавляем функцию для получения забронированных дат с сервера
-        async function getBookedDates(userId) {
-            try {
-                const response = await fetch(`/api/booked-dates?user_id=${userId}`);
-                const data = await response.json();
-                return data.dates || [];
-            } catch (error) {
-                console.error('Ошибка при получении дат:', error);
-                return [];
-            }
-        }
-
-        // Добавляем функцию проверки забронированных дат
-        async function checkBookedDates() {
-            try {
-                const response = await fetch('/api/booked-dates');
-                const data = await response.json();
-                
-                if (data.success && data.bookedDates) {
-                    // Отмечаем даты с бронированиями
-                    document.querySelectorAll('.date').forEach(dateDiv => {
-                        const day = dateDiv.textContent.padStart(2, '0');
-                        const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
-                        const dateStr = `${day}.${month}`;
-                        
-                        if (data.bookedDates.includes(dateStr)) {
-                            dateDiv.classList.add('booked');
-                            dateDiv.style.backgroundColor = '#FF3495';
-                            dateDiv.style.color = 'white';
-                        }
-                    });
+        // Функция для проверки бронирований
+        function getBookedDates(userId) {
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+            const bookedDates = [];
+            
+            // Проходим по всем датам
+            for (const date in bookings) {
+                // Проходим по всем временам в дате
+                for (const time in bookings[date]) {
+                    // Если пользователь забронировал это время
+                    if (bookings[date][time].includes(userId)) {
+                        bookedDates.push(date);
+                        break; // Переходим к следующей дате
+                    }
                 }
-            } catch (error) {
-                console.error('Ошибка при получении забронированных дат:', error);
             }
+            
+            return bookedDates;
         }
 
         // Модифицируем функцию generateCalendar
@@ -363,7 +335,7 @@
             calendar.innerHTML = '';
 
             // Получаем забронированные даты для текущего пользователя
-            const bookedDates = await getBookedDates(userId);
+            const bookedDates = getBookedDates(userId);
 
             // Добавляем дни недели
             const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
@@ -394,37 +366,37 @@
                 dateDiv.className = 'date';
                 dateDiv.textContent = day;
                 
-                // Проверяем, забронирована ли дата
-                const currentDate = `${day.toString().padStart(2, '0')}.${(selectedMonth + 1).toString().padStart(2, '0')}`;
-                if (bookedDates.includes(currentDate)) {
-                    dateDiv.classList.add('booked');
-                    dateDiv.title = 'Вы уже записаны на эту дату';
-                    // Блокируем возможность выбора
-                    dateDiv.style.pointerEvents = 'none';
-                } else {
-                    // Обработчик клика только для незабронированных дат
-                    dateDiv.addEventListener('click', function() {
-                        document.querySelectorAll('.date').forEach(d => d.classList.remove('selected'));
-                        this.classList.add('selected');
-                        
-                        const selectedDateEl = document.querySelector('.selected-date');
-                        const day = this.textContent.padStart(2, '0');
-                        const month = (selectedMonth + 1).toString().padStart(2, '0');
-                        
-                        selectedDateEl.style.display = 'block';
-                        selectedDateEl.textContent = `${day}.${month}`;
-                    });
+                // Форматируем дату для проверки
+                const formattedDay = String(day).padStart(2, '0');
+                const formattedMonth = String(selectedMonth + 1).padStart(2, '0');
+                const formattedDate = `${formattedDay}.${formattedMonth}`;
+                
+                // Если дата забронирована этим пользователем
+                if (bookedDates.includes(formattedDate)) {
+                    dateDiv.style.backgroundColor = '#FF3495';
+                    dateDiv.style.color = 'white';
                 }
+
+                dateDiv.addEventListener('click', function() {
+                    document.querySelectorAll('.date').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const selectedDateEl = document.querySelector('.selected-date');
+                    selectedDateEl.textContent = formattedDate;
+                });
                 
                 calendar.appendChild(dateDiv);
             }
-
-            // После генерации календаря проверяем забронированные даты
-            await checkBookedDates();
         }
 
         // Запускаем генерацию календаря
         generateCalendar();
+
+        // Инициализируем пустую дату
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        document.querySelector('.selected-date').textContent = `${day}.${month}`;
 
         // Стили для забронированных дат
         const style = document.createElement('style');
