@@ -341,45 +341,32 @@
 
     <script>
         // В начале скрипта обновим функции для работы с бронированиями
-        function getBookings() {
+        async function getBookingsCount(date, time) {
             try {
-                const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-                console.log('Current bookings:', bookings);
-                return bookings;
+                const response = await fetch(`/api/bookings/${date}/${time}`);
+                const data = await response.json();
+                return data.count;
             } catch (e) {
-                console.error('Error parsing bookings:', e);
-                return {};
+                console.error('Error getting bookings count:', e);
+                return 0;
             }
         }
 
-        function saveBooking(userId, date, time) {
-            const bookings = getBookings();
-            
-            if (!bookings[date]) {
-                bookings[date] = {};
+        async function saveBooking(userId, date, time) {
+            try {
+                await fetch(`/api/bookings/${date}/${time}/${userId}`, {
+                    method: 'POST'
+                });
+                return true;
+            } catch (e) {
+                console.error('Error saving booking:', e);
+                return false;
             }
-            if (!bookings[date][time]) {
-                bookings[date][time] = [];
-            }
-            
-            // Добавляем пользователя в список бронирований
-            if (!bookings[date][time].includes(userId)) {
-                bookings[date][time].push(userId);
-                localStorage.setItem('bookings', JSON.stringify(bookings));
-                console.log('Booking saved:', bookings);
-            }
-        }
-
-        function getBookingsCount(date, time) {
-            const bookings = getBookings();
-            const count = bookings[date]?.[time]?.length || 0;
-            console.log(`Bookings count for ${date} ${time}:`, count);
-            return count;
         }
 
         // Функция для обновления отображения количества бронирований
-        function updateBookingsDisplay(time) {
-            const count = getBookingsCount(date, time);
+        async function updateBookingsDisplay(time) {
+            const count = await getBookingsCount(date, time);
             infoElement.textContent = `${count} человек забронировали слот на это время`;
             return count;
         }
@@ -404,13 +391,13 @@
         // Отмечаем уже забронированные слоты
         timeSlots.forEach(slot => {
             const time = slot.textContent;
-            const count = getBookingsCount(date, time);
-            
-            if (count > 0) {
-                slot.style.backgroundColor = '#FF1C7D';
-                slot.style.color = 'white';
-                updateBookingsDisplay(time);
-            }
+            getBookingsCount(date, time).then(count => {
+                if (count > 0) {
+                    slot.style.backgroundColor = '#FF1C7D';
+                    slot.style.color = 'white';
+                    updateBookingsDisplay(time);
+                }
+            });
         });
 
         // Обработчик клика по временному слоту
@@ -425,7 +412,6 @@
                 this.classList.add('selected');
                 
                 // Показываем количество бронирований при клике
-                const count = getBookingsCount(date, time);
                 updateBookingsDisplay(time);
                 document.querySelector('.time-box h1').textContent = time;
             });
