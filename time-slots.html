@@ -303,6 +303,15 @@
     </div>
 
     <script>
+        // Убедимся, что Telegram WebApp доступен
+        if (!window.Telegram.WebApp) {
+            alert('Пожалуйста, откройте приложение через Telegram');
+        }
+
+        // Инициализация Telegram WebApp
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+
         const urlParams = new URLSearchParams(window.location.search);
         const date = urlParams.get('date');
         const userId = urlParams.get('user_id');
@@ -324,26 +333,32 @@
                 const selectedTime = selectedSlot.textContent;
                 const selectedDate = document.querySelector('.time-box .date').textContent;
                 
-                // Отправляем данные в Telegram WebApp
-                window.Telegram.WebApp.sendData(JSON.stringify({
-                    date: selectedDate,
-                    time: selectedTime,
-                    user_id: userId,
-                    username: username
-                }));
+                try {
+                    // Отправляем данные в Telegram WebApp
+                    const data = {
+                        date: selectedDate,
+                        time: selectedTime,
+                        user_id: userId,
+                        username: username
+                    };
+                    console.log('Sending data:', data); // Для отладки
+                    window.Telegram.WebApp.sendData(JSON.stringify(data));
+                    window.Telegram.WebApp.close();
+                } catch (error) {
+                    console.error('Error sending data:', error);
+                    alert('Произошла ошибка при отправке данных. Попробуйте еще раз.');
+                }
             } else {
                 alert('Пожалуйста, выберите время');
             }
         });
 
-        document.querySelector('.confirmation-popup .close-btn').addEventListener('click', function() {
-            document.querySelector('.overlay').style.display = 'none';
-            document.querySelector('.confirmation-popup').style.display = 'none';
-            document.querySelector('.privileges-btn-container').style.display = 'none';
+        // Удалим ненужные обработчики событий
+        document.querySelector('.confirmation-popup .close-btn')?.addEventListener('click', function() {
             window.Telegram.WebApp.close();
         });
 
-        document.querySelector('.privileges-btn').addEventListener('click', function() {
+        document.querySelector('.privileges-btn')?.addEventListener('click', function() {
             window.Telegram.WebApp.close();
         });
 
