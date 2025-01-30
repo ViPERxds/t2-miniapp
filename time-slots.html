@@ -452,10 +452,23 @@
 
             const selectedTime = selectedSlot.textContent;
             
+            // Проверяем, не забронировал ли уже пользователь это время
+            if (hasUserBooked(userId, date, selectedTime)) {
+                alert('Вы уже забронировали это время');
+                return;
+            }
+            
             // Форматируем дату
             const [day, month] = date.split('.');
             const months = ['января', 'февраля', 'марта', 'апреля'];
             const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
+            
+            // Показываем уведомление
+            const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
+            document.querySelector('.confirmation-text').textContent = confirmationText;
+            document.querySelector('.overlay').style.display = 'block';
+            document.querySelector('.confirmation-popup').style.display = 'block';
+            document.querySelector('.privileges-btn-container').style.display = 'block';
             
             // Сохраняем бронь
             saveBooking(userId, date, selectedTime);
