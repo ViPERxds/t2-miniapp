@@ -341,32 +341,55 @@
 
     <script>
         // В начале скрипта обновим функции для работы с бронированиями
-        async function getBookingsCount(date, time) {
+        function getBookings() {
             try {
-                const response = await fetch(`/api/bookings/${date}/${time}`);
-                const data = await response.json();
-                return data.count;
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+                return bookings;
             } catch (e) {
-                console.error('Error getting bookings count:', e);
-                return 0;
+                return {};
             }
         }
 
-        async function saveBooking(userId, date, time) {
-            try {
-                await fetch(`/api/bookings/${date}/${time}/${userId}`, {
-                    method: 'POST'
-                });
-                return true;
-            } catch (e) {
-                console.error('Error saving booking:', e);
-                return false;
+        function saveBooking(userId, date, time) {
+            const bookings = getBookings();
+            
+            if (!bookings[date]) {
+                bookings[date] = {};
             }
+            if (!bookings[date][time]) {
+                bookings[date][time] = [];
+            }
+            
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+               
+                // Отправляем данные в бота
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const data = {
+                        date: date,
+                        time: time,
+                        user_id: userId,
+                        username: username,
+                        action: 'booking'
+                    };
+                    window.Telegram.WebApp.sendData(JSON.stringify(data));
+                }
+               
+                // Обновляем отображение для всех пользователей
+                updateBookingsDisplay(time);
+            }
+        }
+
+        function getBookingsCount(date, time) {
+            const bookings = getBookings();
+            const count = bookings[date]?.[time]?.length || 0;
+            return count;
         }
 
         // Функция для обновления отображения количества бронирований
-        async function updateBookingsDisplay(time) {
-            const count = await getBookingsCount(date, time);
+        function updateBookingsDisplay(time) {
+            const count = getBookingsCount(date, time);
             infoElement.textContent = `${count} человек забронировали слот на это время`;
             return count;
         }
@@ -388,16 +411,16 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Отмечаем уже забронированные слоты
+        // При загрузке страницы проверяем все слоты
         timeSlots.forEach(slot => {
             const time = slot.textContent;
-            getBookingsCount(date, time).then(count => {
-                if (count > 0) {
-                    slot.style.backgroundColor = '#FF1C7D';
-                    slot.style.color = 'white';
-                    updateBookingsDisplay(time);
-                }
-            });
+            const count = getBookingsCount(date, time);
+            
+            if (count > 0) {
+                slot.style.backgroundColor = '#FF1C7D';
+                slot.style.color = 'white';
+                updateBookingsDisplay(time);
+            }
         });
 
         // Обработчик клика по временному слоту
@@ -441,22 +464,6 @@
 
             // Сохраняем бронь
             saveBooking(userId, date, selectedTime);
-            
-            // Отправляем данные в Telegram только если WebApp доступен
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = {
-                    date: date,
-                    time: selectedTime,
-                    user_id: userId,
-                    username: username
-                };
-                
-                try {
-                    window.Telegram.WebApp.sendData(JSON.stringify(data));
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            }
         });
 
         // Обработчики закрытия
