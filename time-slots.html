@@ -340,38 +340,48 @@
     </div>
 
     <script>
-        // В начале скрипта добавим функции для работы с бронированиями
+        // В начале скрипта обновим функции для работы с бронированиями
         function getBookings() {
-            const bookings = localStorage.getItem('bookings');
-            console.log('Raw bookings:', bookings); // Для отладки
-            return JSON.parse(bookings || '{}');
+            try {
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+                console.log('Current bookings:', bookings);
+                return bookings;
+            } catch (e) {
+                console.error('Error parsing bookings:', e);
+                return {};
+            }
         }
 
         function saveBooking(userId, date, time) {
             const bookings = getBookings();
-            console.log('Current bookings:', bookings); // Для отладки
             
-            if (!bookings[date]) bookings[date] = {};
-            if (!bookings[date][time]) bookings[date][time] = [];
-            
-            // Проверяем, не забронировал ли уже этот пользователь это время
-            if (!bookings[date][time].includes(userId)) {
-                bookings[date][time].push(userId);
+            if (!bookings[date]) {
+                bookings[date] = {};
+            }
+            if (!bookings[date][time]) {
+                bookings[date][time] = [];
             }
             
-            console.log('Saving bookings:', bookings); // Для отладки
-            localStorage.setItem('bookings', JSON.stringify(bookings));
+            // Добавляем пользователя в список бронирований
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                console.log('Booking saved:', bookings);
+            }
         }
 
         function getBookingsCount(date, time) {
             const bookings = getBookings();
-            console.log('Checking bookings for', date, time, ':', bookings[date]?.[time]); // Для отладки
-            return bookings[date]?.[time]?.length || 0;
+            const count = bookings[date]?.[time]?.length || 0;
+            console.log(`Bookings count for ${date} ${time}:`, count);
+            return count;
         }
 
-        function hasUserBooked(userId, date, time) {
-            const bookings = getBookings();
-            return bookings[date]?.[time]?.includes(userId) || false;
+        // Функция для обновления отображения количества бронирований
+        function updateBookingsDisplay(time) {
+            const count = getBookingsCount(date, time);
+            infoElement.textContent = `${count} человек забронировали слот на это время`;
+            return count;
         }
 
         // Получаем параметры из URL
@@ -391,18 +401,15 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Отмечаем уже забронированные слоты этим пользователем
+        // Отмечаем уже забронированные слоты
         timeSlots.forEach(slot => {
             const time = slot.textContent;
             const count = getBookingsCount(date, time);
             
-            console.log('Slot:', time, 'Count:', count); // Для отладки
-            
-            // Если есть бронирования на это время, показываем их
             if (count > 0) {
                 slot.style.backgroundColor = '#FF1C7D';
                 slot.style.color = 'white';
-                infoElement.textContent = `${count} человек забронировали слот на это время`;
+                updateBookingsDisplay(time);
             }
         });
 
@@ -419,7 +426,7 @@
                 
                 // Показываем количество бронирований при клике
                 const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот на это время`;
+                updateBookingsDisplay(time);
                 document.querySelector('.time-box h1').textContent = time;
             });
         });
