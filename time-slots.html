@@ -84,7 +84,7 @@
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
         }
 
         .time-box .date {
@@ -93,7 +93,7 @@
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
         }
 
         .time-row {
@@ -172,30 +172,31 @@
             color: #FF3495;
             font-size: 48px;
             margin: 0;
-            font-family: 'T2 Halvar Breit XBd';
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
         }
 
         /* Обновляем стили для всплывающих элементов */
         .confirmation-popup {
             background-color: #FF3495;
             color: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            border-radius: 15px;
             position: fixed;
-            top: 40%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: calc(100% - 40px);
-            max-width: 375px;
+            width: 340px;
+            max-width: calc(100% - 40px);
             z-index: 1000;
             display: none;
+            box-sizing: border-box;
         }
 
         .confirmation-text {
-            font-size: 18px;
-            line-height: 1.4;
+            font-size: 16px;
+            line-height: 1;
             margin: 0;
-            padding-right: 30px;
+            padding-right: 25px;
             font-family: 'T2 Rooftop', sans-serif;
             white-space: pre-line;
         }
@@ -214,29 +215,37 @@
         .privileges-btn-container {
             background-color: #A7FC00;
             position: fixed;
-            top: calc(40% + 70px); /* Располагаем прямо под розовым уведомлением */
+            top: calc(45% + 55px);
             left: 50%;
             transform: translate(-50%, 0);
-            width: calc(100% - 40px);
-            max-width: 375px;
+            width: 340px;
+            max-width: calc(100% - 40px);
             z-index: 1000;
             display: none;
-            border-radius: 12px;
+            border-radius: 15px;
+            padding: 0;
+            height: 45px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
         }
 
         .privileges-btn {
             background-color: transparent;
             color: black;
             width: 100%;
-            padding: 15px;
+            padding: 0;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             font-family: 'T2 Halvar Breit XBd', sans-serif;
             font-size: 16px;
             text-transform: uppercase;
             cursor: pointer;
             font-weight: bold;
             letter-spacing: 0.5px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .overlay {
@@ -274,7 +283,6 @@
             </div>
 
             <div class="time-box">
-                <h1>ВРЕМЯ.</h1>
                 <h1 class="date" style="color: #FF3495;"></h1>
             </div>
 
@@ -399,6 +407,9 @@
 
                 // Добавляем выделение текущему слоту
                 this.classList.add('selected');
+                
+                // Обновляем время в черном блоке
+                document.querySelector('.time-box .date').textContent = time;
                 
                 // Показываем количество бронирований для выбранного времени
                 const count = getBookingsCount(date, time);
