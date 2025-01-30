@@ -423,17 +423,20 @@
         `;
         document.head.appendChild(style);
 
-        // Исправляем обработчик кнопки "ДАЛЕЕ"
+        // Обработчик кнопки "ДАЛЕЕ"
         document.querySelector('.next-btn').addEventListener('click', function() {
             const selectedDate = document.querySelector('.date.selected');
-            if (selectedDate) {
-                const day = selectedDate.textContent.padStart(2, '0');
-                const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
-                const date = `${day}.${month}`;
-                window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
-            } else {
+            if (!selectedDate) {
                 alert('Пожалуйста, выберите дату');
+                return;
             }
+
+            const day = selectedDate.textContent.padStart(2, '0');
+            const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
+            const date = `${day}.${month}`;
+
+            // Переходим на страницу выбора времени с параметрами
+            window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
         });
 
         // При загрузке страницы устанавливаем текущий месяц
