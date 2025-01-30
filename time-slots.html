@@ -76,24 +76,30 @@
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .time-box h1 {
             color: white;
-            font-size: 42px;
+            font-size: 64px;
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            padding-left: 10px;
         }
 
         .time-box .date {
-            color: #FF3495;
-            font-size: 52px;
+            color: #FF1C7D;
+            font-size: 48px;
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            display: block;
+            padding-left: 10px;
         }
 
         .time-row {
@@ -116,10 +122,12 @@
             cursor: pointer;
             font-weight: 900;
             font-family: 'T2 Halvar Breit XBd', sans-serif;
+            color: #666666;
+            transition: all 0.2s ease;
         }
 
         .time-slot.selected {
-            background-color: #FF3495;
+            background-color: #FF1C7D;
             color: white;
         }
 
@@ -193,7 +201,7 @@
         }
 
         .confirmation-text {
-            font-size: 16px;
+            font-size: 14px;
             line-height: 1;
             margin: 0;
             padding-right: 25px;
@@ -215,7 +223,7 @@
         .privileges-btn-container {
             background-color: #A7FC00;
             position: fixed;
-            top: calc(45% + 55px);
+            top: calc(45% + 45px);
             left: 50%;
             transform: translate(-50%, 0);
             width: 355px;
@@ -224,7 +232,7 @@
             display: none;
             border-radius: 15px;
             padding: 0;
-            height: 45px;
+            height: 55px;
             box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
         }
@@ -242,7 +250,7 @@
             cursor: pointer;
             font-weight: bold;
             letter-spacing: 0.5px;
-            height: 45px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -367,7 +375,11 @@
         const username = urlParams.get('username');
 
         // Устанавливаем дату в заголовок
-        document.querySelector('.time-box .date').textContent = date;
+        const timeBox = document.querySelector('.time-box');
+        timeBox.innerHTML = `
+            <h1>12:00</h1>
+            <div class="date">${date}</div>
+        `;
 
         // Обработка временных слотов
         const timeSlots = document.querySelectorAll('.time-slot');
@@ -381,8 +393,6 @@
             const time = slot.textContent;
             if (hasUserBooked(userId, date, time)) {
                 slot.classList.add('selected');
-                slot.style.backgroundColor = '#FF3495';
-                slot.style.color = 'white';
                 const count = getBookingsCount(date, time);
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             }
@@ -393,25 +403,20 @@
             slot.addEventListener('click', function() {
                 const time = this.textContent;
                 
-                // Если этот слот уже забронирован этим пользователем, ничего не делаем
                 if (hasUserBooked(userId, date, time)) {
                     return;
                 }
 
-                // Убираем выделение со всех слотов
                 timeSlots.forEach(s => {
                     if (!hasUserBooked(userId, date, s.textContent)) {
                         s.classList.remove('selected');
                     }
                 });
 
-                // Добавляем выделение текущему слоту
                 this.classList.add('selected');
                 
-                // Обновляем время в черном блоке
-                document.querySelector('.time-box .date').textContent = time;
+                document.querySelector('.time-box h1').textContent = time;
                 
-                // Показываем количество бронирований для выбранного времени
                 const count = getBookingsCount(date, time);
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             });
@@ -442,10 +447,6 @@
             // Сохраняем бронь
             saveBooking(userId, date, selectedTime);
             
-            // Отмечаем слот как забронированный
-            selectedSlot.style.backgroundColor = '#FF3495';
-            selectedSlot.style.color = 'white';
-
             // Отправляем данные в Telegram только если WebApp доступен
             if (window.Telegram && window.Telegram.WebApp) {
                 const data = {
