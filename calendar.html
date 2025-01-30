@@ -435,8 +435,8 @@
             const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
             const date = `${day}.${month}`;
 
-            // Переходим на страницу выбора времени с параметрами
-            window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+            // Используем полный URL для GitHub Pages
+            window.location.href = `https://viperxds.github.io/t2-miniapp/time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
         });
 
         // При загрузке страницы устанавливаем текущий месяц
