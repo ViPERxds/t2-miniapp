@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Выбор времени</title>
+    <title>Выбор даты</title>
     <style>
         @font-face {
-            font-family: 'HalvarBreitBlack';
-            src: url('fonts/T2HalvarBreit-Black.ttf') format('truetype');
+            font-family: 'HalvarBreit';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
         }
 
         @font-face {
@@ -15,13 +15,8 @@
             src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
         }
 
-        @font-face {
-            font-family: 'T2HalvarBreitExtraBold';
-            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
-        }
-
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'RooftopRegular', Arial, sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -55,228 +50,204 @@
         .header {
             display: flex;
             align-items: center;
+            margin-bottom: 20px;
             gap: 10px;
-            margin-bottom: 15px;
         }
 
-        .back-link {
-            color: #FF3495;
-            text-decoration: none;
+        .title {
+            text-align: center;
             font-size: 16px;
             font-family: 'T2 Rooftop', sans-serif;
-            font-weight: 900;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
+            margin-bottom: 20px;
         }
 
-        .time-box {
+        .date-box {
             background-color: #000;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            min-height: 100px;
+            position: relative;
         }
 
-        .time-box h1 {
+        .date-box h1 {
             color: white;
             font-size: 64px;
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
-            padding-left: 10px;
+            position: relative;
+            top: 10px;
+            left: 0;
         }
 
-        .time-box .date {
-            color: #FF1C7D;
+        .selected-date {
+            color: white;
             font-size: 48px;
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
-            display: block;
+            line-height: 1;
+            padding: 0;
             padding-left: 10px;
+            display: block;
+            position: relative;
+            text-align: left;
+            margin-top: 0;
         }
 
-        .time-row {
+        .month-wrapper {
+            position: relative;
             display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
-        .time-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .time-slot {
-            flex: 1;
-            background-color: #f5f5f5;
-            padding: 15px 0;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 18px;
-            cursor: pointer;
-            font-weight: 900;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
-            color: #666666;
-            transition: all 0.2s ease;
-        }
-
-        .time-slot.selected {
+        .month-selector {
             background-color: #FF1C7D;
             color: white;
-        }
-
-        .time-slot.double {
-            flex: 2;
-        }
-
-        .participants-info {
-            background-color: #000;
-            color: white;
-            padding: 35px 20px;
+            padding: 18px 20px;
             border-radius: 15px;
-            font-size: 12px;
-            margin: 20px 0 30px;
-            font-family: 'T2 Rooftop', sans-serif;
-            min-height: 80px;
-            display: block;
-            line-height: 1.2;
+            flex: 1;
+            font-size: 18px;
+            text-transform: uppercase;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            cursor: pointer;
         }
 
-        .join-btn {
+        .month-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 60px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            display: none;
+        }
+
+        .month-option {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-family: 'T2HalvarBreitExtraBold';
+            border-bottom: 1px solid #eee;
+        }
+
+        .month-option:last-child {
+            border-bottom: none;
+        }
+
+        .month-option:hover {
+            background-color: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .t2-logo {
+            width: 48px;
+            height: 48px;
+        }
+
+        .t2-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .weekday {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            padding: 5px;
+            font-weight: normal;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .date {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #f5f5f5;
+            font-family: 'HalvarBreitBlack', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .date.active {
+            background-color: #FF3495;
+            color: white;
+        }
+
+        .date.highlight {
+            background-color: #FF3495;
+            color: white;
+        }
+
+        .date.selected {
+            background: #FF3495;
+            color: white;
+        }
+
+        .date-title {
+            font-family: 'T2HalvarBreitExtraBold';
+            font-size: 36px;
+            margin: 0;
+            color: white;
+            text-transform: none;
+        }
+
+        .selected-date {
+            font-family: 'T2HalvarBreitExtraBold';
+            font-size: 36px;
+            margin: 0;
+            display: block;
+            color: #FF3495;
+        }
+
+        .next-btn {
             width: 100%;
             padding: 15px;
             background-color: #A7FC00;
             border: none;
-            border-radius: 10px;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            border-radius: 15px;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
             font-size: 16px;
             text-transform: uppercase;
             cursor: pointer;
             font-weight: 900;
-            letter-spacing: 0.5px;
+            margin-top: 20px;
         }
 
-        /* Специальный шрифт только для нужных элементов */
-        .time-box h1,
-        .time-box .date,
-        .time-slot,
-        .join-btn {
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+        .date.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #eee;
         }
 
-        /* Добавляем стили для контейнера контента */
-        .content-wrapper {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .date-title {
-            color: #FF3495;
-            font-size: 48px;
-            margin: 0;
-            font-family: 'T2HalvarBreitExtraBold', sans-serif;
-        }
-
-        /* Обновляем стили для всплывающих элементов */
-        .confirmation-popup {
-            background-color: #FF3495;
+        .date.booked {
+            background-color: #9C27B0;
             color: white;
-            padding: 12px 20px;
-            border-radius: 15px;
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 355px;
-            max-width: calc(100% - 40px);
-            z-index: 1000;
-            display: none;
-            box-sizing: border-box;
+            cursor: not-allowed;
         }
 
-        .confirmation-text {
-            font-size: 14px;
-            line-height: 1;
-            margin: 0;
-            padding-right: 25px;
-            font-family: 'T2 Rooftop', sans-serif;
-            white-space: pre-line;
-        }
-
-        .close-btn {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .privileges-btn-container {
-            background-color: #A7FC00;
-            position: fixed;
-            top: calc(45% + 45px);
-            left: 50%;
-            transform: translate(-50%, 0);
-            width: 355px;
-            max-width: calc(100% - 40px);
-            z-index: 1000;
-            display: none;
-            border-radius: 15px;
-            padding: 0;
-            height: 55px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
-        }
-
-        .privileges-btn {
-            background-color: transparent;
-            color: black;
-            width: 100%;
-            padding: 0;
-            border: none;
-            border-radius: 15px;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-            cursor: pointer;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
-        }
-
-        /* Добавляем правильные шрифты */
+        /* Убедимся, что шрифт подключен правильно */
         @font-face {
-            font-family: 'T2 Rooftop';
-            src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        @font-face {
-            font-family: 'T2 Halvar Breit XBd';
+            font-family: 'T2HalvarBreitExtraBold';
             src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
@@ -285,195 +256,190 @@
 </head>
 <body>
     <div class="mobile-container">
-        <div class="content-wrapper">
-            <div class="header">
-                <button class="back-link" onclick="window.history.back()">Назад</button>
-            </div>
-
-            <div class="time-box">
-                <h1 class="date" style="color: #FF3495;"></h1>
-            </div>
-
-            <div class="time-rows">
-                <div class="time-row">
-                    <div class="time-slot">10:00</div>
-                    <div class="time-slot">11:00</div>
-                    <div class="time-slot">12:00</div>
-                    <div class="time-slot">13:00</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-slot">14:00</div>
-                    <div class="time-slot">15:00</div>
-                    <div class="time-slot">16:00</div>
-                    <div class="time-slot">17:00</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-slot">10:00</div>
-                    <div class="time-slot">11:00</div>
-                    <div class="time-slot">12:00</div>
-                    <div class="time-slot">18:00</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-slot">19:00</div>
-                    <div class="time-slot">20:00</div>
-                    <div class="time-slot">21:00</div>
-                    <div class="time-slot">22:00</div>
-                </div>
-            </div>
-
-            <div class="participants-info" id="participants-info">
-                8 человек забронировали слот на это время
-            </div>
-
-            <button class="join-btn">ПРИСОЕДИНИТЬСЯ</button>
+        <div class="date-box">
+            <h1 class="selected-date"></h1>
         </div>
-    </div>
 
-    <!-- Добавляем HTML для всплывающего уведомления -->
-    <div class="overlay"></div>
-    <div class="confirmation-popup">
-        <button class="close-btn">✕</button>
-        <p class="confirmation-text"></p>
-    </div>
-    <div class="privileges-btn-container">
-        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
+        <div class="month-wrapper">
+            <div class="month-selector">
+                <span>ЯНВАРЬ</span>
+                <span>▼</span>
+            </div>
+            <div class="month-dropdown">
+                <div class="month-option" data-month="0">Январь</div>
+                <div class="month-option" data-month="1">Февраль</div>
+                <div class="month-option" data-month="2">Март</div>
+                <div class="month-option" data-month="3">Апрель</div>
+            </div>
+            <div class="t2-logo">
+                <img src="images/t2-logo.png" alt="t2">
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <!-- Дни недели добавляются через JavaScript -->
+        </div>
+
+        <button class="next-btn">ДАЛЕЕ</button>
     </div>
 
     <script>
-        // В начале скрипта обновим функции для работы с бронированиями
-        function getBookings() {
-            try {
-                // Пытаемся получить данные из файла bookings.json
-                const response = fetch('bookings.json');
-                if (response.ok) {
-                    const bookings = response.json();
-                    return bookings;
-                }
-                return {};
-            } catch (e) {
-                return {};
-            }
-        }
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель'
+        ];
 
-        function saveBooking(userId, date, time) {
-            // Отправляем данные в бота
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = {
-                    date: date,
-                    time: time,
-                    user_id: userId,
-                    username: username,
-                    action: 'booking'
-                };
-                window.Telegram.WebApp.sendData(JSON.stringify(data));
-               
-                // Сохраняем локально для отображения
-                const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-                if (!bookings[date]) bookings[date] = {};
-                if (!bookings[date][time]) bookings[date][time] = [];
-                if (!bookings[date][time].includes(userId)) {
-                    bookings[date][time].push(userId);
-                    localStorage.setItem('bookings', JSON.stringify(bookings));
-                }
-            }
-        }
-
-        function getBookingsCount(date, time) {
-            // Получаем локальные бронирования
-            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-            const localCount = bookings[date]?.[time]?.length || 0;
-            return localCount;
-        }
-
-        // Функция для обновления отображения количества бронирований
-        function updateBookingsDisplay(time) {
-            const count = getBookingsCount(date, time);
-            infoElement.textContent = `${count} человек забронировали слот на это время`;
-            return count;
-        }
-
-        // Получаем параметры из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const date = urlParams.get('date');
-        const userId = urlParams.get('user_id');
-        const username = urlParams.get('username');
-
-        // Устанавливаем дату в заголовок
-        const timeBox = document.querySelector('.time-box');
-        timeBox.innerHTML = `
-            <h1>12:00</h1>
-            <div class="date">${date}</div>
-        `;
-
-        // Обработка временных слотов
-        const timeSlots = document.querySelectorAll('.time-slot');
-        const infoElement = document.getElementById('participants-info');
+        const monthSelector = document.querySelector('.month-selector');
+        const monthDropdown = document.querySelector('.month-dropdown');
         
-        // При загрузке страницы проверяем все слоты
-        timeSlots.forEach(slot => {
-            const time = slot.textContent;
-            const count = getBookingsCount(date, time);
-            
-            if (count > 0) {
-                slot.style.backgroundColor = '#FF1C7D';
-                slot.style.color = 'white';
-                updateBookingsDisplay(time);
-            }
+        // Добавим переменную для хранения текущего выбранного месяца
+        let currentSelectedMonth = new Date().getMonth();
+
+        // Обработчик клика по селектору месяца
+        monthSelector.addEventListener('click', function() {
+            monthDropdown.style.display = monthDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Обработчик клика по временному слоту
-        timeSlots.forEach(slot => {
-            slot.addEventListener('click', function() {
-                const time = this.textContent;
-                
-                // Убираем выделение со всех слотов
-                timeSlots.forEach(s => s.classList.remove('selected'));
-                
-                // Добавляем выделение текущему слоту
-                this.classList.add('selected');
-                
-                // Показываем количество бронирований при клике
-                updateBookingsDisplay(time);
-                document.querySelector('.time-box h1').textContent = time;
+        // Обработчик выбора месяца
+        document.querySelectorAll('.month-option').forEach(option => {
+            option.addEventListener('click', function() {
+                currentSelectedMonth = parseInt(this.dataset.month);
+                monthSelector.querySelector('span:first-child').textContent = this.textContent.toUpperCase();
+                generateCalendar(currentSelectedMonth);
+                monthDropdown.style.display = 'none';
             });
         });
 
-        // Обработчик кнопки "Присоединиться"
-        document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedSlot = document.querySelector('.time-slot.selected:not([style*="background-color"])');
-            if (!selectedSlot) {
-                alert('Пожалуйста, выберите время');
-                return;
+        // Закрываем dropdown при клике вне его
+        document.addEventListener('click', function(e) {
+            if (!monthSelector.contains(e.target) && !monthDropdown.contains(e.target)) {
+                monthDropdown.style.display = 'none';
             }
-
-            const selectedTime = selectedSlot.textContent;
-            
-            // Форматируем дату
-            const [day, month] = date.split('.');
-            const months = ['января', 'февраля', 'марта', 'апреля'];
-            const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
-            
-            // Показываем уведомление
-            const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
-            document.querySelector('.confirmation-text').textContent = confirmationText;
-            document.querySelector('.overlay').style.display = 'block';
-            document.querySelector('.confirmation-popup').style.display = 'block';
-            document.querySelector('.privileges-btn-container').style.display = 'block';
-
-            // Сохраняем бронь
-            saveBooking(userId, date, selectedTime);
         });
 
-        // Обработчики закрытия
-        document.querySelector('.confirmation-popup .close-btn').addEventListener('click', function() {
-            document.querySelector('.overlay').style.display = 'none';
-            document.querySelector('.confirmation-popup').style.display = 'none';
-            document.querySelector('.privileges-btn-container').style.display = 'none';
-            window.Telegram.WebApp.close();
+        // Получаем параметры из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
+
+        // Функция для проверки бронирований
+        function getBookedDates(userId) {
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+            const bookedDates = [];
+            
+            // Проходим по всем датам
+            for (const date in bookings) {
+                // Проходим по всем временам в дате
+                for (const time in bookings[date]) {
+                    // Если пользователь забронировал это время
+                    if (bookings[date][time].includes(userId)) {
+                        bookedDates.push(date);
+                        break; // Переходим к следующей дате
+                    }
+                }
+            }
+            
+            return bookedDates;
+        }
+
+        // Модифицируем функцию generateCalendar
+        async function generateCalendar(selectedMonth = new Date().getMonth()) {
+            const calendar = document.querySelector('.calendar-grid');
+            calendar.innerHTML = '';
+
+            // Получаем забронированные даты для текущего пользователя
+            const bookedDates = getBookedDates(userId);
+
+            // Добавляем дни недели
+            const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+            weekdays.forEach(day => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'weekday';
+                dayDiv.textContent = day;
+                calendar.appendChild(dayDiv);
+            });
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            
+            const firstDay = new Date(currentYear, selectedMonth, 1);
+            const lastDay = new Date(currentYear, selectedMonth + 1, 0);
+            
+            // Добавляем пустые ячейки до первого дня месяца
+            let firstDayOfWeek = firstDay.getDay() || 7;
+            for (let i = 1; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'date';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // Добавляем дни месяца
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'date';
+                dateDiv.textContent = day;
+                
+                // Форматируем дату для проверки
+                const formattedDay = String(day).padStart(2, '0');
+                const formattedMonth = String(selectedMonth + 1).padStart(2, '0');
+                const formattedDate = `${formattedDay}.${formattedMonth}`;
+                
+                // Если дата забронирована этим пользователем
+                if (bookedDates.includes(formattedDate)) {
+                    dateDiv.style.backgroundColor = '#FF3495';
+                    dateDiv.style.color = 'white';
+                }
+
+                dateDiv.addEventListener('click', function() {
+                    document.querySelectorAll('.date').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const selectedDateEl = document.querySelector('.selected-date');
+                    const day = this.textContent.padStart(2, '0');
+                    const month = (selectedMonth + 1).toString().padStart(2, '0');
+                    selectedDateEl.textContent = day + '.' + month;
+                });
+                
+                calendar.appendChild(dateDiv);
+            }
+        }
+
+        // Запускаем генерацию календаря
+        generateCalendar();
+
+        // Инициализируем пустую дату
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        document.querySelector('.selected-date').textContent = day + '.' + month;
+
+        // Стили для забронированных дат
+        const style = document.createElement('style');
+        style.textContent = `
+            .date.booked {
+                background-color: #9C27B0;
+                color: white;
+                cursor: not-allowed;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Исправляем обработчик кнопки "ДАЛЕЕ"
+        document.querySelector('.next-btn').addEventListener('click', function() {
+            const selectedDate = document.querySelector('.date.selected');
+            if (selectedDate) {
+                const day = selectedDate.textContent.padStart(2, '0');
+                const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
+                const date = `${day}.${month}`;
+                window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+            } else {
+                alert('Пожалуйста, выберите дату');
+            }
         });
 
-        document.querySelector('.privileges-btn').addEventListener('click', function() {
-            window.Telegram.WebApp.close();
+        // При загрузке страницы устанавливаем текущий месяц
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentMonth = new Date().getMonth();
+            document.querySelector('.month-selector span:first-child').textContent = monthNames[currentMonth];
         });
     </script>
 </body>
