@@ -446,8 +446,8 @@
             selectedSlot.style.backgroundColor = '#FF3495';
             selectedSlot.style.color = 'white';
 
-            // Отправляем данные в Telegram с небольшой задержкой
-            setTimeout(() => {
+            // Отправляем данные в Telegram только если WebApp доступен
+            if (window.Telegram && window.Telegram.WebApp) {
                 const data = {
                     date: date,
                     time: selectedTime,
@@ -459,9 +459,8 @@
                     window.Telegram.WebApp.sendData(JSON.stringify(data));
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Произошла ошибка. Попробуйте еще раз.');
                 }
-            }, 500); // Задержка 500мс для гарантированного показа уведомления
+            }
         });
 
         // Обработчики закрытия
