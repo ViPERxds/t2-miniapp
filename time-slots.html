@@ -244,6 +244,19 @@
             font-weight: normal;
             font-style: normal;
         }
+
+        .time-slot.selected {
+            background-color: #FF3495;
+            color: white;
+        }
+
+        .time-slot:hover {
+            background-color: #f0f0f0;
+        }
+
+        .time-slot.selected:hover {
+            background-color: #FF3495;
+        }
     </style>
 </head>
 <body>
@@ -317,16 +330,21 @@
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
+        // Устанавливаем дату в заголовке
         document.querySelector('.time-box .date').textContent = date;
 
+        // Добавляем обработчики для временных слотов
         const timeSlots = document.querySelectorAll('.time-slot');
         timeSlots.forEach(slot => {
             slot.addEventListener('click', function() {
+                // Убираем выделение со всех слотов
                 timeSlots.forEach(s => s.classList.remove('selected'));
+                // Добавляем выделение на выбранный слот
                 this.classList.add('selected');
             });
         });
 
+        // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
             const selectedSlot = document.querySelector('.time-slot.selected');
             if (selectedSlot) {
