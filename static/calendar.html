@@ -1,1 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор даты</title>
+    <style>
+        @font-face {
+            font-family: 'HalvarBreit';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
+        }
 
+        @font-face {
+            font-family: 'RooftopRegular';
+            src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
+        }
+
+        body {
+            font-family: 'RooftopRegular', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 375px;
+            height: 100vh;
+            background: white;
+            position: relative;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mobile-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-weight: 500;
+        }
+
+        .date-box {
+            background-color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .date-box h1 {
+            margin: 0;
+            font-family: 'HalvarBreitBlack', sans-serif;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .date-title {
+            color: white;
+            font-size: 48px;
+            margin: 0;
+            font-family: 'HalvarBreitBlack', sans-serif;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .selected-date {
+            font-family: 'T2HalvarBreitExtraBold';
+            font-size: 36px;
+            margin: 0;
+            color: #FF3495;
+            display: block !important;
+            margin-top: 10px;
+        }
+
+        .month-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            z-index: 1000;
+        }
+
+        .month-selector {
+            background-color: #FF3495;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-right: 60px;
+            position: relative;
+        }
+
+        .month-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 60px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            display: none;
+        }
+
+        .month-option {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-family: 'T2HalvarBreitExtraBold';
+            border-bottom: 1px solid #eee;
+        }
+
+        .month-option:last-child {
+            border-bottom: none;
+        }
+
+        .month-option:hover {
+            background-color: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .t2-logo {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .t2-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .weekday {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            padding: 5px;
+            font-weight: normal;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .date {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #f5f5f5;
+            font-family: 'HalvarBreitBlack', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .date.active {
+            background-color: #FF3495;
+            color: white;
+        }
+
+        .date.highlight {
+            background-color: #FF3495;
+            color: white;
+        }
+
+        .date.selected {
+            background: #FF3495;
+            color: white;
+        }
+
+        .date-title {
+            font-family: 'T2HalvarBreitExtraBold';
+            font-size: 36px;
+            margin: 0;
+            color: white;
+            text-transform: none;
+        }
+
+        .selected-date {
+            font-family: 'T2HalvarBreitExtraBold';
+            font-size: 36px;
+            margin: 0;
+            display: none; /* Изначально скрыт */
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #A7FC00;
+            border: none;
+            border-radius: 15px;
+            font-family: 'HalvarBreitBlack', sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 900;
+            margin-top: 20px;
+        }
+
+        .date.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #eee;
+        }
+
+        .date.booked {
+            background-color: #9C27B0;
+            color: white;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <div class="header">
+            <div class="title">Больше, чем встреча</div>
+        </div>
+
+        <div class="date-box">
+            <h1 class="date-title">ДАТА</h1>
+            <h1 class="selected-date"></h1>
+        </div>
+
+        <div class="month-wrapper">
+            <div class="month-selector">
+                <span>ЯНВАРЬ</span>
+                <span>▼</span>
+            </div>
+            <div class="month-dropdown">
+                <div class="month-option" data-month="0">Январь</div>
+                <div class="month-option" data-month="1">Февраль</div>
+                <div class="month-option" data-month="2">Март</div>
+                <div class="month-option" data-month="3">Апрель</div>
+            </div>
+            <div class="t2-logo">
+                <img src="images/t2-logo.png" alt="t2">
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <!-- Дни недели добавляются через JavaScript -->
+        </div>
+
+        <button class="next-btn">ДАЛЕЕ</button>
+    </div>
+
+    <script>
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель'
+        ];
+
+        const monthSelector = document.querySelector('.month-selector');
+        const monthDropdown = document.querySelector('.month-dropdown');
+        
+        // Добавим переменную для хранения текущего выбранного месяца
+        let currentSelectedMonth = new Date().getMonth();
+
+        // Обработчик клика по селектору месяца
+        monthSelector.addEventListener('click', function() {
+            monthDropdown.style.display = monthDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Обработчик выбора месяца
+        document.querySelectorAll('.month-option').forEach(option => {
+            option.addEventListener('click', function() {
+                currentSelectedMonth = parseInt(this.dataset.month);
+                monthSelector.querySelector('span:first-child').textContent = this.textContent.toUpperCase();
+                generateCalendar(currentSelectedMonth);
+                monthDropdown.style.display = 'none';
+            });
+        });
+
+        // Закрываем dropdown при клике вне его
+        document.addEventListener('click', function(e) {
+            if (!monthSelector.contains(e.target) && !monthDropdown.contains(e.target)) {
+                monthDropdown.style.display = 'none';
+            }
+        });
+
+        // Получаем параметры из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
+
+        // Добавляем функцию для получения забронированных дат с сервера
+        async function getBookedDates(userId) {
+            try {
+                const response = await fetch(`/api/booked-dates?user_id=${userId}`);
+                const data = await response.json();
+                return data.dates || [];
+            } catch (error) {
+                console.error('Ошибка при получении дат:', error);
+                return [];
+            }
+        }
+
+        // Добавляем функцию проверки забронированных дат
+        async function checkBookedDates() {
+            try {
+                const response = await fetch('/api/booked-dates');
+                const data = await response.json();
+                
+                if (data.success && data.bookedDates) {
+                    // Отмечаем даты с бронированиями
+                    document.querySelectorAll('.date').forEach(dateDiv => {
+                        const day = dateDiv.textContent.padStart(2, '0');
+                        const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
+                        const dateStr = `${day}.${month}`;
+                        
+                        if (data.bookedDates.includes(dateStr)) {
+                            dateDiv.classList.add('booked');
+                            dateDiv.style.backgroundColor = '#FF3495';
+                            dateDiv.style.color = 'white';
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Ошибка при получении забронированных дат:', error);
+            }
+        }
+
+        // Модифицируем функцию generateCalendar
+        async function generateCalendar(selectedMonth = new Date().getMonth()) {
+            const calendar = document.querySelector('.calendar-grid');
+            calendar.innerHTML = '';
+
+            // Получаем забронированные даты для текущего пользователя
+            const bookedDates = await getBookedDates(userId);
+
+            // Добавляем дни недели
+            const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+            weekdays.forEach(day => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'weekday';
+                dayDiv.textContent = day;
+                calendar.appendChild(dayDiv);
+            });
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            
+            const firstDay = new Date(currentYear, selectedMonth, 1);
+            const lastDay = new Date(currentYear, selectedMonth + 1, 0);
+            
+            // Добавляем пустые ячейки до первого дня месяца
+            let firstDayOfWeek = firstDay.getDay() || 7;
+            for (let i = 1; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'date';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // Добавляем дни месяца
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'date';
+                dateDiv.textContent = day;
+                
+                // Проверяем, забронирована ли дата
+                const currentDate = `${day.toString().padStart(2, '0')}.${(selectedMonth + 1).toString().padStart(2, '0')}`;
+                if (bookedDates.includes(currentDate)) {
+                    dateDiv.classList.add('booked');
+                    dateDiv.title = 'Вы уже записаны на эту дату';
+                    // Блокируем возможность выбора
+                    dateDiv.style.pointerEvents = 'none';
+                } else {
+                    // Обработчик клика только для незабронированных дат
+                    dateDiv.addEventListener('click', function() {
+                        document.querySelectorAll('.date').forEach(d => d.classList.remove('selected'));
+                        this.classList.add('selected');
+                        
+                        const selectedDateEl = document.querySelector('.selected-date');
+                        const day = this.textContent.padStart(2, '0');
+                        const month = (selectedMonth + 1).toString().padStart(2, '0');
+                        
+                        selectedDateEl.style.display = 'block';
+                        selectedDateEl.textContent = `${day}.${month}`;
+                    });
+                }
+                
+                calendar.appendChild(dateDiv);
+            }
+
+            // После генерации календаря проверяем забронированные даты
+            await checkBookedDates();
+        }
+
+        // Запускаем генерацию календаря
+        generateCalendar();
+
+        // Стили для забронированных дат
+        const style = document.createElement('style');
+        style.textContent = `
+            .date.booked {
+                background-color: #9C27B0;
+                color: white;
+                cursor: not-allowed;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Исправляем обработчик кнопки "ДАЛЕЕ"
+        document.querySelector('.next-btn').addEventListener('click', function() {
+            const selectedDate = document.querySelector('.date.selected');
+            if (selectedDate) {
+                const day = selectedDate.textContent.padStart(2, '0');
+                const month = (currentSelectedMonth + 1).toString().padStart(2, '0');
+                const date = `${day}.${month}`;
+                window.location.href = `time-slots.html?date=${date}&user_id=${userId}&username=${username}`;
+            } else {
+                alert('Пожалуйста, выберите дату');
+            }
+        });
+
+        // При загрузке страницы устанавливаем текущий месяц
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentMonth = new Date().getMonth();
+            document.querySelector('.month-selector span:first-child').textContent = monthNames[currentMonth];
+        });
+    </script>
+</body>
+</html> 
