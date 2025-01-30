@@ -1,1 +1,183 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерфейс</title>
+    <style>
+        @font-face {
+            font-family: 'T2HalvarBreitExtraBold';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'T2RooftopRegular';
+            src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'T2RooftopRegular', sans-serif; /* Основной текст с T2RooftopRegular */
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 375px;
+            padding: 15px 0;
+            box-sizing: border-box;
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-container {
+            display: flex;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .image {
+            width: 75%;
+            border-radius: 12px;
+            display: block;
+        }
+
+        .color-overlay {
+            width: 77px;
+            height: 81%;
+            background-color: #FF3495;
+            position: absolute;
+            top: 0;
+            right: -3px;
+            border-radius: 12px;
+        }
+
+        .text-content {
+            padding: 5px 15px; /* увеличенный верхний и нижний отступ */
+            background-color: #000000;
+            color: #FFFFFF;
+            text-align: left;
+            border-radius: 12px;
+            margin: 8px 0;
+            height: 160px; /* Установите желаемую высоту */
+            display: flex; /* Используйте flexbox */
+            flex-direction: column; /* Вертикальное расположение */
+            justify-content: space-between; /* Разделите пространство между элементами */
+        }
+
+        h1 {
+            font-family: 'T2HalvarBreitExtraBold', sans-serif; /* Шрифт для заголовков */
+            font-size: 30px; /* Один и тот же размер шрифта для обоих заголовков */
+            margin: 0;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFFFFF; /* Цвет заголовков */
+        }
+
+        .sub-header {
+            margin-top: -15px; /* Увеличиваем отрицательный верхний отступ для "ЧЕМ ВСТРЕЧА" */
+        }
+
+        p {
+            font-size: 16px;
+            margin: 0;
+            margin-top: auto; /* Отодвинуть текст вниз */
+            font-family: 'T2RooftopRegular', sans-serif; /* Шрифт для остального текста */
+            color: #FFFFFF; /* Цвет для основного текста */
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 15px 0;
+            background-color: #A7FC00;
+            color: black;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif; /* Шрифт для кнопки */
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin: 4px 0;
+            margin-bottom: 12px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .register-btn:hover {
+            opacity: 0.9;
+        }
+
+        .small-circle {
+            width: 75px;
+            height: 75px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: absolute;
+            top: 92%;
+            left: 90%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .small-circle img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img class="image" src="images/yes.jpg" alt="Каток">
+            <div class="color-overlay"></div>
+            <div class="small-circle">
+                <img src="images/t2-logo.png" alt="t2">
+            </div>
+        </div>
+        <div class="text-content">
+            <h1>БОЛЬШЕ,</h1>
+            <h1 class="sub-header">ЧЕМ ВСТРЕЧА</h1>
+            <p>Хочешь найти компанию на каток ВДНХ? Давай знакомиться!</p>
+        </div>
+        <a id="register-button" class="register-btn">РЕГИСТРАЦИЯ</a>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        const username = urlParams.get('username');
+
+        if (userId && username) {
+            fetch(`getUserData.php?user_id=${userId}&username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const { name, about, gender, birthdate } = data;
+                        const choiceUrl = `https://123-231-21312-3213123-231.ru/choice.html?name=${encodeURIComponent(name)}&about=${encodeURIComponent(about)}&gender=${encodeURIComponent(gender)}&birthdate=${encodeURIComponent(birthdate)}&user_id=${userId}&username=${username}`;
+                        window.location.href = choiceUrl;
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+
+        document.getElementById('register-button').onclick = function () {
+            window.location.href = `calendar.html?user_id=${userId}&username=${username}`;
+        };
+    </script>
+</body>
+</html>
