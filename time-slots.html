@@ -310,91 +310,27 @@
 
         document.querySelector('.time-box .date').textContent = date;
 
-        const bookingData = {
-            '10:00': 0, '11:00': 0, '12:00': 0, '13:00': 0,
-            '14:00': 0, '15:00': 0, '16:00': 0, '17:00': 0,
-            '18:00': 0, '19:00': 0, '20:00': 0, '21:00': 0,
-            '22:00': 0
-        };
-
         const timeSlots = document.querySelectorAll('.time-slot');
         timeSlots.forEach(slot => {
-            slot.addEventListener('click', async function() {
-                if (this.style.pointerEvents === 'none') {
-                    return;
-                }
-                
-                timeSlots.forEach(s => {
-                    if (s.style.pointerEvents !== 'none') {
-                        s.classList.remove('selected');
-                    }
-                });
-                
+            slot.addEventListener('click', function() {
+                timeSlots.forEach(s => s.classList.remove('selected'));
                 this.classList.add('selected');
-                
-                const time = this.textContent;
-                const date = document.querySelector('.time-box .date').textContent;
-                
-                try {
-                    const response = await fetch('/get_bookings', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ time, date })
-                    });
-                    
-                    const data = await response.json();
-                    if (data.success) {
-                        const infoElement = document.getElementById('participants-info');
-                        infoElement.textContent = `${data.count} человек забронировали слот на это время`;
-                        infoElement.style.display = 'block';
-                    }
-                } catch (error) {
-                    console.error('Ошибка:', error);
-                }
             });
         });
 
-        document.querySelector('.join-btn').addEventListener('click', async function() {
+        document.querySelector('.join-btn').addEventListener('click', function() {
             const selectedSlot = document.querySelector('.time-slot.selected');
             if (selectedSlot) {
                 const selectedTime = selectedSlot.textContent;
                 const selectedDate = document.querySelector('.time-box .date').textContent;
                 
-                try {
-                    const response = await fetch('/api/book-slot', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            userId: userId,
-                            date: selectedDate,
-                            time: selectedTime
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (!data.success) {
-                        alert('Это время уже забронировано. Пожалуйста, выберите другое время.');
-                        return;
-                    }
-                    
-                    const [day, month] = selectedDate.split('.');
-                    const months = ['января', 'февраля', 'марта', 'апреля'];
-                    const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
-                    
-                    const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
-                    document.querySelector('.confirmation-text').textContent = confirmationText;
-                    document.querySelector('.overlay').style.display = 'block';
-                    document.querySelector('.confirmation-popup').style.display = 'block';
-                    document.querySelector('.privileges-btn-container').style.display = 'block';
-                    
-                } catch (error) {
-                    console.error('Ошибка при сохранении брони:', error);
-                    alert('Произошла ошибка при бронировании. Пожалуйста, попробуйте еще раз.');
-                }
+                // Отправляем данные в Telegram WebApp
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    date: selectedDate,
+                    time: selectedTime,
+                    user_id: userId,
+                    username: username
+                }));
             } else {
                 alert('Пожалуйста, выберите время');
             }
