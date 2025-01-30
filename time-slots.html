@@ -366,13 +366,23 @@
                     action: 'booking'
                 };
                 window.Telegram.WebApp.sendData(JSON.stringify(data));
+               
+                // Сохраняем локально для отображения
+                const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+                if (!bookings[date]) bookings[date] = {};
+                if (!bookings[date][time]) bookings[date][time] = [];
+                if (!bookings[date][time].includes(userId)) {
+                    bookings[date][time].push(userId);
+                    localStorage.setItem('bookings', JSON.stringify(bookings));
+                }
             }
         }
 
         function getBookingsCount(date, time) {
-            const bookings = getBookings();
-            const count = bookings[date]?.[time]?.length || 0;
-            return count;
+            // Получаем локальные бронирования
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+            const localCount = bookings[date]?.[time]?.length || 0;
+            return localCount;
         }
 
         // Функция для обновления отображения количества бронирований
