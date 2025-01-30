@@ -385,15 +385,24 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const infoElement = document.getElementById('participants-info');
         
-        // Изначально показываем 0 человек
-        infoElement.textContent = '0 человек забронировали слот на это время';
+        // Показываем количество бронирований для первого слота при загрузке
+        const firstSlotTime = timeSlots[0].textContent;
+        const initialCount = getBookingsCount(date, firstSlotTime);
+        infoElement.textContent = `${initialCount} человек забронировали слот на это время`;
 
         // Отмечаем уже забронированные слоты этим пользователем
         timeSlots.forEach(slot => {
             const time = slot.textContent;
+            const count = getBookingsCount(date, time);
+            
+            // Если есть бронирования на это время, показываем их
+            if (count > 0) {
+                slot.style.backgroundColor = '#FF1C7D';
+                slot.style.color = 'white';
+            }
+            
             if (hasUserBooked(userId, date, time)) {
                 slot.classList.add('selected');
-                const count = getBookingsCount(date, time);
                 infoElement.textContent = `${count} человек забронировали слот на это время`;
             }
         });
@@ -403,9 +412,9 @@
             slot.addEventListener('click', function() {
                 const time = this.textContent;
                 
-                if (hasUserBooked(userId, date, time)) {
-                    return;
-                }
+                // Показываем количество бронирований при клике
+                const count = getBookingsCount(date, time);
+                infoElement.textContent = `${count} человек забронировали слот на это время`;
 
                 timeSlots.forEach(s => {
                     if (!hasUserBooked(userId, date, s.textContent)) {
@@ -414,11 +423,7 @@
                 });
 
                 this.classList.add('selected');
-                
                 document.querySelector('.time-box h1').textContent = time;
-                
-                const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот на это время`;
             });
         });
 
