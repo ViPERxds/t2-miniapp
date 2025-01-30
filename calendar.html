@@ -72,16 +72,18 @@
             color: white;
             font-size: 42px;
             margin: 0;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            letter-spacing: 1px;
             font-weight: 900;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
         }
 
         .date-box .selected-date {
             color: #FF3495;
             font-size: 52px;
             margin: 0;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            letter-spacing: 1px;
             font-weight: 900;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
             display: block;
             margin-top: 5px;
         }
@@ -237,14 +239,19 @@
             color: white;
             cursor: not-allowed;
         }
+
+        /* Убедимся, что шрифт подключен правильно */
+        @font-face {
+            font-family: 'T2HalvarBreitExtraBold';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
     </style>
 </head>
 <body>
     <div class="mobile-container">
-        <div class="title">Больше, чем встреча</div>
-
         <div class="date-box">
-            <h1>ДАТА</h1>
             <h1 class="selected-date"></h1>
         </div>
 
@@ -382,7 +389,9 @@
                     this.classList.add('selected');
                     
                     const selectedDateEl = document.querySelector('.selected-date');
-                    selectedDateEl.textContent = formattedDate;
+                    const day = this.textContent.padStart(2, '0');
+                    const month = (selectedMonth + 1).toString().padStart(2, '0');
+                    selectedDateEl.textContent = day + '.' + month;
                 });
                 
                 calendar.appendChild(dateDiv);
@@ -396,7 +405,7 @@
         const today = new Date();
         const day = String(today.getDate()).padStart(2, '0');
         const month = String(today.getMonth() + 1).padStart(2, '0');
-        document.querySelector('.selected-date').textContent = `${day}.${month}`;
+        document.querySelector('.selected-date').textContent = day + '.' + month;
 
         // Стили для забронированных дат
         const style = document.createElement('style');
