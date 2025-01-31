@@ -73,9 +73,9 @@
 
         .time-box {
             background-color: #000;
-            padding: 20px;
+            padding: 8px 15px 15px 8px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             display: flex;
             flex-direction: column;
             gap: 5px;
@@ -88,18 +88,16 @@
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
-            padding-left: 10px;
         }
 
         .time-box .date {
             color: #FF1C7D;
-            font-size: 48px;
+            font-size: 64px;
             margin: 0;
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
             display: block;
-            padding-left: 10px;
         }
 
         .time-row {
@@ -135,17 +133,23 @@
             flex: 2;
         }
 
+        .time-slot.active {
+            background-color: #FF1C7D;
+            color: white;
+        }
+
         .participants-info {
             background-color: #000;
             color: white;
-            padding: 35px 20px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin: 20px 0 30px;
-            font-family: 'T2 Rooftop', sans-serif;
-            min-height: 80px;
+            padding: 15px 15px 45px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            min-height: 140px;
             display: block;
             line-height: 1.2;
+            font-weight: 600;
         }
 
         .join-btn {
@@ -153,13 +157,14 @@
             padding: 15px;
             background-color: #A7FC00;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-family: 'T2 Halvar Breit XBd', sans-serif;
             font-size: 16px;
             text-transform: uppercase;
             cursor: pointer;
             font-weight: 900;
             letter-spacing: 0.5px;
+            margin: 0;
         }
 
         /* Специальный шрифт только для нужных элементов */
@@ -184,40 +189,61 @@
         }
 
         /* Обновляем стили для всплывающих элементов */
-        .confirmation-popup {
-            background-color: #FF3495;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 15px;
+        .overlay {
             position: fixed;
-            top: 45%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            display: none;
+        }
+
+        .confirmation-popup {
+            position: fixed;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 355px;
-            max-width: calc(100% - 40px);
-            z-index: 1000;
+            width: 90%;
+            max-width: 375px;
+            z-index: 1002;
             display: none;
-            box-sizing: border-box;
+            background: transparent;
+            gap: 12px;
+            flex-direction: column;
         }
 
         .confirmation-text {
-            font-size: 14px;
-            line-height: 1;
-            margin: 0;
-            padding-right: 25px;
+            background-color: #FF1C7D;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
             font-family: 'T2 Rooftop', sans-serif;
-            white-space: pre-line;
+            line-height: 1.6;
+            position: relative;
+            margin-bottom: 12px;
+            overflow: visible;
         }
 
-        .close-btn {
+        .close-button {
             position: absolute;
-            right: 15px;
-            top: 15px;
-            background: none;
-            border: none;
+            right: 16px;
+            top: 16px;
             color: white;
             font-size: 24px;
             cursor: pointer;
+            z-index: 9999;
+            opacity: 1;
+            font-family: system-ui;
+            font-weight: 300;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
         }
 
         .privileges-btn-container {
@@ -238,33 +264,17 @@
         }
 
         .privileges-btn {
-            background-color: transparent;
+            background-color: #A7FC00;
             color: black;
             width: 100%;
-            padding: 0;
-            border: none;
-            border-radius: 15px;
-            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
             font-size: 16px;
             text-transform: uppercase;
+            border: none;
             cursor: pointer;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
+            font-weight: 900;
         }
 
         /* Добавляем правильные шрифты */
@@ -281,6 +291,12 @@
             font-weight: normal;
             font-style: normal;
         }
+
+        .time-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -296,21 +312,15 @@
 
             <div class="time-rows">
                 <div class="time-row">
-                    <div class="time-slot">10:00</div>
                     <div class="time-slot">11:00</div>
                     <div class="time-slot">12:00</div>
                     <div class="time-slot">13:00</div>
+                    <div class="time-slot">14:00</div>
                 </div>
                 <div class="time-row">
-                    <div class="time-slot">14:00</div>
                     <div class="time-slot">15:00</div>
                     <div class="time-slot">16:00</div>
                     <div class="time-slot">17:00</div>
-                </div>
-                <div class="time-row">
-                    <div class="time-slot">10:00</div>
-                    <div class="time-slot">11:00</div>
-                    <div class="time-slot">12:00</div>
                     <div class="time-slot">18:00</div>
                 </div>
                 <div class="time-row">
@@ -332,11 +342,15 @@
     <!-- Добавляем HTML для всплывающего уведомления -->
     <div class="overlay"></div>
     <div class="confirmation-popup">
-        <button class="close-btn">✕</button>
-        <p class="confirmation-text"></p>
-    </div>
-    <div class="privileges-btn-container">
-        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
+        <div class="confirmation-text">
+            <span class="close-button">✕</span>
+            <div class="popup-content">
+                Ждем тебя <span class="date-text"></span> в <span class="time-text"></span> около
+                брендированной фотозоны t2
+                (Павильон 1)
+            </div>
+        </div>
+        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ T2</button>
     </div>
 
     <script>
@@ -424,13 +438,14 @@
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedSlot = document.querySelector('.time-slot.selected:not([style*="background-color"])');
+            const selectedSlot = document.querySelector('.time-slot.selected');
             if (!selectedSlot) {
                 alert('Пожалуйста, выберите время');
                 return;
             }
 
             const selectedTime = selectedSlot.textContent;
+            const displayedTime = document.querySelector('.time-box h1').textContent;
             
             // Форматируем дату
             const [day, month] = date.split('.');
@@ -438,20 +453,16 @@
             const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
             
             // Показываем уведомление
-            const confirmationText = `Ждем тебя ${formattedDate} в ${selectedTime} около\nбрендированной фотозоны t2\n(Павильон 1)`;
-            document.querySelector('.confirmation-text').textContent = confirmationText;
-            document.querySelector('.overlay').style.display = 'block';
-            document.querySelector('.confirmation-popup').style.display = 'block';
-            document.querySelector('.privileges-btn-container').style.display = 'block';
+            showConfirmation(formattedDate, displayedTime);
 
             // Сохраняем бронь
-            saveBooking(userId, date, selectedTime);
+            saveBooking(userId, date, displayedTime);
             
-            // Отправляем данные в Telegram только если WebApp доступен
+            // Отправляем данные в Telegram
             if (window.Telegram && window.Telegram.WebApp) {
                 const data = {
                     date: date,
-                    time: selectedTime,
+                    time: displayedTime,
                     user_id: userId,
                     username: username
                 };
@@ -465,15 +476,42 @@
         });
 
         // Обработчики закрытия
-        document.querySelector('.confirmation-popup .close-btn').addEventListener('click', function() {
+        document.querySelector('.close-button').addEventListener('click', function(e) {
+            e.preventDefault();
             document.querySelector('.overlay').style.display = 'none';
             document.querySelector('.confirmation-popup').style.display = 'none';
-            document.querySelector('.privileges-btn-container').style.display = 'none';
-            window.Telegram.WebApp.close();
         });
 
         document.querySelector('.privileges-btn').addEventListener('click', function() {
             window.Telegram.WebApp.close();
+        });
+
+        function showConfirmation(date, time) {
+            // Убираем предыдущий активный слот
+            document.querySelectorAll('.time-slot.active').forEach(slot => {
+                slot.classList.remove('active');
+            });
+            
+            // Добавляем активный класс к выбранному слоту
+            const selectedSlot = Array.from(document.querySelectorAll('.time-slot')).find(slot => slot.textContent === time);
+            if (selectedSlot) {
+                selectedSlot.classList.add('active');
+            }
+            
+            document.querySelector('.date-text').textContent = date;
+            document.querySelector('.time-text').textContent = time;
+            document.querySelector('.overlay').style.display = 'block';
+            document.querySelector('.confirmation-popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.querySelector('.overlay').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+        }
+
+        document.querySelector('.overlay').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
         });
     </script>
 </body>
