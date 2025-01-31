@@ -28,14 +28,13 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            padding: 12px;
             box-sizing: border-box;
         }
         
         .container {
             width: 100%;
             max-width: 375px;
-            padding: 15px 0;
+            padding: 12px;
             box-sizing: border-box;
             background-color: transparent;
             display: flex;
@@ -46,11 +45,12 @@
         .image-container {
             display: flex;
             position: relative;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            width: 100%;
         }
 
         .image {
-            width: 75%;
+            width: calc(100% - 97px);  /* 77px (ширина розового) + 8px (отступ) + 12px (отступ справа) */
             border-radius: 12px;
             display: block;
         }
@@ -61,21 +61,23 @@
             background-color: #FF3495;
             position: absolute;
             top: 0;
-            right: -3px;
+            right: 12px;
             border-radius: 12px;
         }
 
         .text-content {
-            padding: 5px 15px; /* увеличенный верхний и нижний отступ */
+            padding: 16px;
             background-color: #000000;
             color: #FFFFFF;
             text-align: left;
             border-radius: 12px;
-            margin: 8px 0;
-            height: 160px; /* Установите желаемую высоту */
-            display: flex; /* Используйте flexbox */
-            flex-direction: column; /* Вертикальное расположение */
-            justify-content: space-between; /* Разделите пространство между элементами */
+            margin-bottom: 8px;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -101,7 +103,7 @@
 
         .register-btn {
             width: 100%;
-            padding: 15px 0;
+            padding: 16px 0;
             background-color: #A7FC00;
             color: black;
             border: none;
@@ -110,11 +112,11 @@
             font-family: 'T2HalvarBreitExtraBold', sans-serif; /* Шрифт для кнопки */
             cursor: pointer;
             transition: opacity 0.2s;
-            margin: 4px 0;
-            margin-bottom: 12px;
+            margin: 0;
             text-decoration: none;
             text-align: center;
             font-weight: bold;
+            box-sizing: border-box;
         }
 
         .register-btn:hover {
@@ -127,9 +129,8 @@
             border-radius: 12px;
             overflow: hidden;
             position: absolute;
-            top: 92%;
-            left: 90%;
-            transform: translate(-50%, -50%);
+            bottom: 0;
+            right: 12px;
             z-index: 10;
         }
 
@@ -151,7 +152,7 @@
         <div class="text-content">
             <h1>БОЛЬШЕ,</h1>
             <h1 class="sub-header">ЧЕМ ВСТРЕЧА</h1>
-            <p>Хочешь найти компанию на каток ВДНХ? Давай знакомиться!</p>
+            <p>ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ</p>
         </div>
         <a id="register-button" class="register-btn">РЕГИСТРАЦИЯ</a>
     </div>
