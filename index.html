@@ -22,7 +22,7 @@
         body {
             font-family: 'T2RooftopRegular', sans-serif; /* Основной текст с T2RooftopRegular */
             margin: 0;
-            padding: 12px;
+            padding: 0;
             background-color: #FFFFFF;
             display: flex;
             justify-content: center;
@@ -34,12 +34,11 @@
         .container {
             width: 100%;
             max-width: 375px;
-            padding: 0;
+            padding: 12px;
             box-sizing: border-box;
             background-color: transparent;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
 
         .image-container {
@@ -76,9 +75,8 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            width: calc(100% - 24px);  /* Полная ширина минус отступы по бокам */
-            margin-left: 12px;
-            margin-right: 12px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -103,7 +101,7 @@
         }
 
         .register-btn {
-            width: calc(100% - 24px);
+            width: 100%;
             padding: 16px 0;
             background-color: #A7FC00;
             color: black;
@@ -114,11 +112,10 @@
             cursor: pointer;
             transition: opacity 0.2s;
             margin: 0;
-            margin-left: 12px;
-            margin-right: 12px;
             text-decoration: none;
             text-align: center;
             font-weight: bold;
+            box-sizing: border-box;
         }
 
         .register-btn:hover {
@@ -131,7 +128,7 @@
             border-radius: 12px;
             overflow: hidden;
             position: absolute;
-            bottom: 0;
+            top: calc(81% + 5px);  /* Высота розового блока + 5px отступ */
             right: 12px;
             z-index: 10;
         }
