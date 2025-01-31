@@ -76,6 +76,9 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            width: calc(100% - 24px);  /* Полная ширина минус отступы по бокам */
+            margin-left: 12px;
+            margin-right: 12px;
         }
 
         h1 {
@@ -100,18 +103,19 @@
         }
 
         .register-btn {
-            width: 100%;
-            padding: 15px 0;
+            width: calc(100% - 24px);
+            padding: 16px 0;
             background-color: #A7FC00;
             color: black;
             border: none;
             border-radius: 12px;
             font-size: 18px;
-            font-family: 'T2HalvarBreitExtraBold', sans-serif; /* Шрифт для кнопки */
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
             cursor: pointer;
             transition: opacity 0.2s;
             margin: 0;
-            padding: 16px 0;
+            margin-left: 12px;
+            margin-right: 12px;
             text-decoration: none;
             text-align: center;
             font-weight: bold;
