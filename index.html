@@ -186,19 +186,6 @@
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
-        if (userId && username) {
-            fetch(`getUserData.php?user_id=${userId}&username=${username}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const { name, about, gender, birthdate } = data;
-                        const choiceUrl = `https://123-231-21312-3213123-231.ru/choice.html?name=${encodeURIComponent(name)}&about=${encodeURIComponent(about)}&gender=${encodeURIComponent(gender)}&birthdate=${encodeURIComponent(birthdate)}&user_id=${userId}&username=${username}`;
-                        window.location.href = choiceUrl;
-                    }
-                })
-                .catch(error => console.error('Ошибка:', error));
-        }
-
         document.getElementById('register-button').onclick = function () {
             window.location.href = `calendar.html?user_id=${userId}&username=${username}`;
         };
