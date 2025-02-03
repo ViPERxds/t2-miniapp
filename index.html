@@ -49,7 +49,7 @@
         }
 
         .image {
-            width: calc(100% - 97px);  /* 77px (ширина розового) + 8px (отступ) + 12px (отступ справа) */
+            width: calc(100% - 85px);  /* 77px (ширина розового) + 8px (отступ) */
             border-radius: 12px;
             display: block;
         }
@@ -60,7 +60,7 @@
             background-color: #FF3495;
             position: absolute;
             top: 0;
-            right: 12px;
+            right: 0;
             border-radius: 12px;
         }
 
@@ -77,21 +77,18 @@
             width: 100%;
             box-sizing: border-box;
             position: relative;
-            margin-right: 12px;
-            width: calc(100% - 12px);
         }
 
         h1 {
-            font-family: 'T2HalvarBreitExtraBold', sans-serif; /* Шрифт для заголовков */
-            font-size: 30px; /* Один и тот же размер шрифта для обоих заголовков */
-            margin: 0;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            font-size: 30px;
+            margin: -4px 0 10px 0;
             font-weight: bold;
-            margin-bottom: 10px;
-            color: #FFFFFF; /* Цвет заголовков */
+            color: #FFFFFF;
         }
 
         .sub-header {
-            margin-top: -15px; /* Увеличиваем отрицательный верхний отступ для "ЧЕМ ВСТРЕЧА" */
+            margin-top: -12px;
         }
 
         p {
@@ -135,8 +132,6 @@
             cursor: pointer;
             transition: opacity 0.2s;
             margin: 0;
-            margin-right: 12px;
-            width: calc(100% - 12px);
             text-decoration: none;
             text-align: center;
             font-weight: bold;
@@ -150,17 +145,22 @@
         .small-circle {
             width: 75px;
             height: 75px;
-            border-radius: 12px;
+            border-radius: 50%;
             overflow: hidden;
             position: absolute;
-            top: calc(81% + 5px);  /* Высота розового блока + 5px отступ */
-            right: 12px;
+            top: calc(81% + 4px);  /* Чтобы лого было ровно между розовым и черным блоками */
+            right: 0;
             z-index: 10;
+            background-color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .small-circle img {
-            width: 100%;
-            height: auto;
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
         }
     </style>
 </head>
