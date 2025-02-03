@@ -73,12 +73,12 @@
 
         .time-box {
             background-color: #000;
-            padding: 8px 15px 15px 8px;
+            padding: 8px 24px 15px 24px;
             border-radius: 12px;
             margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 0px;
         }
 
         .time-box h1 {
@@ -113,7 +113,7 @@
         .time-slot {
             flex: 1;
             background-color: #f5f5f5;
-            padding: 15px 0;
+            padding: 12px 0;
             border-radius: 10px;
             text-align: center;
             font-size: 18px;
@@ -148,6 +148,8 @@
             display: block;
             line-height: 1.2;
             font-weight: normal;
+            margin-bottom: 8px;
+            white-space: pre-line;
         }
 
         .join-btn {
@@ -163,6 +165,7 @@
             font-weight: 900;
             letter-spacing: 0.5px;
             margin: 0;
+            color: #000 !important;
         }
 
         /* Специальный шрифт только для нужных элементов */
@@ -208,36 +211,36 @@
             z-index: 1002;
             display: none;
             background: transparent;
-            gap: 12px;
+            gap: 8px;
             flex-direction: column;
         }
 
         .confirmation-text {
             background-color: #FF1C7D;
             color: white;
-            padding: 16px;
+            padding: 16px 48px 16px 16px;
             border-radius: 12px;
             font-size: 16px;
             font-family: 'T2 Rooftop', sans-serif;
             line-height: 1.6;
             position: relative;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             overflow: visible;
         }
 
         .close-button {
             position: absolute;
             right: 16px;
-            top: 16px;
+            top: 12px;
             color: white;
-            font-size: 24px;
+            font-size: 32px;
             cursor: pointer;
             z-index: 9999;
             opacity: 1;
             font-family: system-ui;
             font-weight: 300;
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -269,7 +272,6 @@
             border-radius: 12px;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
             font-size: 16px;
-            text-transform: uppercase;
             border: none;
             cursor: pointer;
             font-weight: 900;
@@ -331,7 +333,8 @@
             </div>
 
             <div class="participants-info" id="participants-info">
-                8 человек забронировали слот на это время
+                0 человек забронировали слот
+                на это время
             </div>
 
             <button class="join-btn">ПРИСОЕДИНИТЬСЯ</button>
@@ -344,12 +347,13 @@
         <div class="confirmation-text">
             <span class="close-button">✕</span>
             <div class="popup-content">
-                Ждем тебя <span class="date-text"></span> в <span class="time-text"></span> около
-                брендированной фотозоны t2
+                Ждем тебя <span class="date-text"></span> в <span class="time-text"></span><br>
+                около брендированной фотозоны t2
                 (Павильон 1)
             </div>
         </div>
-        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ T2</button>
+        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ<br>
+ОТ t2</button>
     </div>
 
     <script>
@@ -399,7 +403,7 @@
         const infoElement = document.getElementById('participants-info');
         
         // Изначально показываем 0 человек
-        infoElement.textContent = '0 человек забронировали слот на это время';
+        infoElement.textContent = '0 человек забронировали слот\nна это время';
 
         // Отмечаем уже забронированные слоты этим пользователем
         timeSlots.forEach(slot => {
@@ -407,7 +411,7 @@
             if (hasUserBooked(userId, date, time)) {
                 slot.classList.add('selected');
                 const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот на это время`;
+                infoElement.textContent = `${count} человек забронировали слот\nна это время`;
             }
         });
 
@@ -431,7 +435,7 @@
                 document.querySelector('.time-box h1').textContent = time;
                 
                 const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот на это время`;
+                infoElement.textContent = `${count} человек забронировали слот\nна это время`;
             });
         });
 
