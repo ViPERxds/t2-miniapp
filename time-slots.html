@@ -88,6 +88,7 @@
             letter-spacing: 1px;
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            line-height: 0.9;
         }
 
         .time-box .date {
@@ -98,12 +99,13 @@
             font-weight: 900;
             font-family: 'T2HalvarBreitExtraBold', sans-serif;
             display: block;
+            line-height: 0.9;
         }
 
         .time-row {
             display: flex;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
 
         .time-row:last-child {
@@ -486,7 +488,8 @@
         });
 
         document.querySelector('.privileges-btn').addEventListener('click', function() {
-            window.Telegram.WebApp.close();
+            // Открываем ссылку в новом окне/вкладке
+            window.open('https://msk.t2.ru/bolshe/katok?utm_source=telegram&utm_medium=miniapp', '_blank');
         });
 
         function showConfirmation(date, time) {
