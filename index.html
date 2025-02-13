@@ -56,12 +56,25 @@
 
         .color-overlay {
             width: 77px;
-            height: 80%;  /* Уменьшаем высоту на 1% (~2px) */
+            height: 80%;
             background-color: #FF3495;
             position: absolute;
             top: 0;
             right: 0;
             border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .age-restriction {
+            color: white;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            font-size: 30px;
+            font-weight: bold;
+            line-height: 1;
         }
 
         .text-content {
@@ -168,7 +181,9 @@
     <div class="container">
         <div class="image-container">
             <img class="image" src="images/yes.jpg" alt="Каток">
-            <div class="color-overlay"></div>
+            <div class="color-overlay">
+                <span class="age-restriction">6+</span>
+            </div>
             <div class="small-circle">
                 <img src="images/t2-logo.png" alt="t2">
             </div>
