@@ -268,8 +268,7 @@
 
         <div class="month-wrapper">
             <div class="month-selector">
-                <span>ЯНВАРЬ</span>
-                <span>▼</span>
+                <span>ФЕВРАЛЬ</span>
             </div>
             <div class="month-dropdown">
                 <div class="month-option" data-month="0">Январь</div>
@@ -300,27 +299,16 @@
         // Добавим переменную для хранения текущего выбранного месяца
         let currentSelectedMonth = new Date().getMonth();
 
-        // Обработчик клика по селектору месяца
-        monthSelector.addEventListener('click', function() {
+        // Удаляем обработчики для выбора месяца
+        monthSelector.removeEventListener('click', function() {
             monthDropdown.style.display = monthDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Обработчик выбора месяца
-        document.querySelectorAll('.month-option').forEach(option => {
-            option.addEventListener('click', function() {
-                currentSelectedMonth = parseInt(this.dataset.month);
-                monthSelector.querySelector('span:first-child').textContent = this.textContent.toUpperCase();
-                generateCalendar(currentSelectedMonth);
-                monthDropdown.style.display = 'none';
-            });
-        });
+        // Устанавливаем февраль статично
+        document.querySelector('.month-selector span:first-child').textContent = 'ФЕВРАЛЬ';
 
-        // Закрываем dropdown при клике вне его
-        document.addEventListener('click', function(e) {
-            if (!monthSelector.contains(e.target) && !monthDropdown.contains(e.target)) {
-                monthDropdown.style.display = 'none';
-            }
-        });
+        // Скрываем дропдаун с месяцами
+        document.querySelector('.month-dropdown').style.display = 'none';
 
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
