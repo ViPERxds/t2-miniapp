@@ -446,18 +446,14 @@
 
         // Функция для обновления количества бронирований
         function updateBookingsCount(date, time) {
-            fetch(`/api/bookings/count?date=${date}&time=${time}`)
-                .then(response => response.json())
-                .then(data => {
-                    const count = data.count;
-                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
-                    infoElement.textContent = `${count} ${wordForm}\nна это время`;
-                });
+            const count = getBookingsCount(date, time);
+            const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+            infoElement.textContent = `${count} ${wordForm}\nна это время`;
         }
 
         // Обновление каждые 30 секунд
-        setInterval(() => {
-            const selectedTime = document.querySelector('.time-box h1').textContent;
+        const updateInterval = setInterval(() => {
+            const selectedTime = document.querySelector('.selected')?.querySelector('h1')?.textContent;
             if (selectedTime) {
                 updateBookingsCount(date, selectedTime);
             }
@@ -494,14 +490,10 @@
                 this.classList.add('selected');
                 document.querySelector('.time-box h1').textContent = time;
                 
-                // Обновляем счетчик
+                // Обновляем количество бронирований
                 updateBookingsCount(date, time);
             });
         });
-
-        // Обновляем счетчик при загрузке страницы
-        const initialTime = document.querySelector('.time-box h1').textContent;
-        updateBookingsCount(date, initialTime);
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
@@ -580,6 +572,11 @@
         document.querySelector('.overlay').addEventListener('click', function() {
             this.style.display = 'none';
             document.querySelector('.confirmation-popup').style.display = 'none';
+        });
+
+        // Очищаем интервал при уходе со страницы
+        window.addEventListener('beforeunload', () => {
+            clearInterval(updateInterval);
         });
     </script>
 </body>
