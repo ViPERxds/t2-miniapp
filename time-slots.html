@@ -605,6 +605,29 @@
         document.getElementById('register-button').onclick = function () {
             window.location.href = `${baseUrl}/calendar.html?user_id=${userId}&username=${username}`;
         };
+
+        // В начале файла после определения переменных
+        function updateAllSlotsCounts() {
+            const timeSlots = document.querySelectorAll('.time-slot');
+            const infoElement = document.querySelector('.booking-info');
+            
+            timeSlots.forEach(slot => {
+                const time = slot.textContent;
+                const count = getBookingsCount(date, time);
+                
+                // Обновляем информацию для выбранного слота
+                if (slot.classList.contains('selected')) {
+                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                    infoElement.textContent = `${count} ${wordForm}\nна это время`;
+                }
+            });
+        }
+
+        // Обновляем каждые 5 секунд
+        setInterval(updateAllSlotsCounts, 5000);
+
+        // Также обновляем при загрузке страницы
+        updateAllSlotsCounts();
     </script>
 </body>
 </html> 
