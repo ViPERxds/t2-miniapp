@@ -229,8 +229,11 @@
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
+        // Добавим базовый URL
+        const baseUrl = '/t2-rink'; // Имя вашего репозитория на GitHub
+
         document.getElementById('register-button').onclick = function () {
-            window.location.href = `calendar.html?user_id=${userId}&username=${username}`;
+            window.location.href = `${baseUrl}/calendar.html?user_id=${userId}&username=${username}`;
         };
     </script>
 </body>
