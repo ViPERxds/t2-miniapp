@@ -49,14 +49,16 @@
         }
 
         .image {
-            width: calc(100% - 85px);  /* 77px (ширина розового) + 8px (отступ) */
+            width: calc(100% - 85px);
+            height: 350px;  /* Увеличиваем высоту фото на 10px */
             border-radius: 12px;
             display: block;
+            object-fit: cover;
         }
 
         .color-overlay {
             width: 77px;
-            height: 80%;
+            height: 270px;
             background-color: #FF3495;
             position: absolute;
             top: 0;
@@ -83,6 +85,7 @@
             color: #FFFFFF;
             text-align: left;
             border-radius: 12px;
+            margin-top: -1px;  /* Было 8px, подняли на 12px (8px - 12px = -4px) */
             margin-bottom: 8px;
             height: 160px;
             display: flex;
@@ -161,7 +164,7 @@
             border-radius: 50%;
             overflow: hidden;
             position: absolute;
-            top: calc(80% + 7px);  /* Увеличиваем отступ на 1px (с 6px до 7px) */
+            top: 276px;  /* Опускаем на 2px вниз (было 274px) */
             right: 0;
             z-index: 10;
             background-color: #000000;
@@ -175,10 +178,35 @@
             height: 70px;
             object-fit: contain;
         }
+
+        .share-button {
+            width: 100%;
+            background-color: #000000;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .share-button span {
+            color: #FFFFFF;
+            font-family: 'T2RooftopRegular', sans-serif;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="share-button">
+            <span>Поделиться с друзьями</span>
+            <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.0284542 11.4448L10.5137 0.959581L10.5138 0.959743L10.514 0.959592L20.9992 11.4448L19.6886 12.7555L10.5138 3.58074L1.33911 12.7555L0.0284542 11.4448ZM9.43845 21.0758L9.43845 8.07578L11.2884 8.07578L11.2884 21.0758L9.43845 21.0758Z" fill="white"/>
+            </svg>
+        </div>
         <div class="image-container">
             <img class="image" src="images/yes.jpg" alt="Каток">
             <div class="color-overlay">
