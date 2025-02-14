@@ -447,22 +447,6 @@
             }
         });
 
-        // Функция для обновления количества бронирований
-        function updateBookingsCount(date, time) {
-            const count = getBookingsCount(date, time);
-            const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
-            infoElement.textContent = `${count} ${wordForm}\nна это время`;
-        }
-
-        // WebSocket подключение для мгновенных обновлений
-        const ws = new WebSocket('ws://your-server/bookings');
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (data.date === date) {
-                updateBookingsCount(date, data.time);
-            }
-        };
-
         // Обработчик клика по временному слоту
         timeSlots.forEach(slot => {
             slot.addEventListener('click', function() {
@@ -485,19 +469,23 @@
                 this.classList.add('selected');
                 document.querySelector('.time-box h1').textContent = time;
                 
-                // Обновляем количество бронирований
-                updateBookingsCount(date, time);
+                // Обновляем счетчик для выбранного времени
+                const count = getBookingsCount(date, time);
+                const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                infoElement.textContent = `${count} ${wordForm}\nна это время`;
             });
         });
 
-        // Добавляем только автообновление
-        const updateInterval = setInterval(() => {
+        // Добавляем только автообновление счетчика
+        setInterval(() => {
             const selectedSlot = document.querySelector('.time-slot.selected');
             if (selectedSlot) {
                 const time = selectedSlot.textContent;
-                updateBookingsCount(date, time);
+                const count = getBookingsCount(date, time);
+                const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                infoElement.textContent = `${count} ${wordForm}\nна это время`;
             }
-        }, 30000);
+        }, 5000);
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
