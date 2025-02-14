@@ -385,6 +385,9 @@
     </div>
 
     <script>
+        // В начале файла добавим определение базового URL
+        const baseUrl = '/t2-rink'; // Имя вашего репозитория на GitHub
+
         // В начале скрипта добавим функции для работы с бронированиями
         function getBookings() {
             return JSON.parse(localStorage.getItem('bookings') || '{}');
@@ -404,15 +407,13 @@
         }
 
         function getBookingsCount(date, time) {
-            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-            const key = `${date}_${time}`;
-            return bookings[key]?.length || 0;
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.length || 0;
         }
 
         function hasUserBooked(userId, date, time) {
-            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-            const key = `${date}_${time}`;
-            return bookings[key]?.includes(userId) || false;
+            const bookings = getBookings();
+            return bookings[date]?.[time]?.includes(userId) || false;
         }
 
         // Получаем параметры из URL
@@ -489,7 +490,7 @@
             });
         });
 
-        // Автообновление каждые 30 секунд только для выбранного слота
+        // Добавляем только автообновление
         const updateInterval = setInterval(() => {
             const selectedSlot = document.querySelector('.time-slot.selected');
             if (selectedSlot) {
@@ -599,6 +600,11 @@
             
             return false;
         }
+
+        // Изменим все пути на абсолютные
+        document.getElementById('register-button').onclick = function () {
+            window.location.href = `${baseUrl}/calendar.html?user_id=${userId}&username=${username}`;
+        };
     </script>
 </body>
 </html> 
