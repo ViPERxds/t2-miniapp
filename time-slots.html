@@ -381,7 +381,7 @@
                 Просьба учесть, что необходимо купить билет для доступа в павильон.
             </div>
         </div>
-        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
+        <button class="privileges-btn">БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
     </div>
 
     <script>
@@ -444,14 +444,41 @@
             }
         });
 
+        // Функция для обновления количества бронирований
+        function updateBookingsCount(date, time) {
+            fetch(`/api/bookings/count?date=${date}&time=${time}`)
+                .then(response => response.json())
+                .then(data => {
+                    const count = data.count;
+                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                    infoElement.textContent = `${count} ${wordForm}\nна это время`;
+                });
+        }
+
+        // Обновление каждые 30 секунд
+        setInterval(() => {
+            const selectedTime = document.querySelector('.time-box h1').textContent;
+            if (selectedTime) {
+                updateBookingsCount(date, selectedTime);
+            }
+        }, 30000);
+
+        // WebSocket подключение для мгновенных обновлений
+        const ws = new WebSocket('ws://your-server/bookings');
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.date === date) {
+                updateBookingsCount(date, data.time);
+            }
+        };
+
         // Обработчик клика по временному слоту
         timeSlots.forEach(slot => {
             slot.addEventListener('click', function() {
                 const time = this.textContent;
                 
-                // Проверяем, не является ли слот неактивным (15:00 или 16:00)
                 if (this.classList.contains('disabled')) {
-                    return; // Прерываем выполнение функции, если слот неактивный
+                    return;
                 }
                 
                 if (hasUserBooked(userId, date, time)) {
@@ -465,13 +492,16 @@
                 });
 
                 this.classList.add('selected');
-                
                 document.querySelector('.time-box h1').textContent = time;
                 
-                const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот\nна это время`;
+                // Обновляем счетчик
+                updateBookingsCount(date, time);
             });
         });
+
+        // Обновляем счетчик при загрузке страницы
+        const initialTime = document.querySelector('.time-box h1').textContent;
+        updateBookingsCount(date, initialTime);
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
