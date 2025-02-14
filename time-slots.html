@@ -388,13 +388,27 @@
         // В начале файла добавим определение базового URL
         const baseUrl = '/t2-rink'; // Имя вашего репозитория на GitHub
 
-        // Функции для работы с localStorage
+        // Функции для работы с бронированиями
         function getBookings() {
             return JSON.parse(localStorage.getItem('bookings') || '{}');
         }
 
-        function saveBookings(bookings) {
-            localStorage.setItem('bookings', JSON.stringify(bookings));
+        function saveBooking(userId, date, time) {
+            const bookings = getBookings();
+            if (!bookings[date]) {
+                bookings[date] = {};
+            }
+            if (!bookings[date][time]) {
+                bookings[date][time] = [];
+            }
+            
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+                console.log(`Сохранена бронь: ${date} ${time}`);
+                return true;
+            }
+            return false;
         }
 
         function getBookingsCount(date, time) {
@@ -405,22 +419,6 @@
         function hasUserBooked(userId, date, time) {
             const bookings = getBookings();
             return bookings[date]?.[time]?.includes(userId) || false;
-        }
-
-        function addBooking(userId, date, time) {
-            const bookings = getBookings();
-            if (!bookings[date]) {
-                bookings[date] = {};
-            }
-            if (!bookings[date][time]) {
-                bookings[date][time] = [];
-            }
-            if (!bookings[date][time].includes(userId)) {
-                bookings[date][time].push(userId);
-                saveBookings(bookings);
-                return true;
-            }
-            return false;
         }
 
         // Получаем параметры из URL
@@ -444,14 +442,33 @@
         // Изначально показываем 0 человек
         infoElement.textContent = '0 человек забронировали слот\nна это время';
 
-        // Отмечаем уже забронированные слоты этим пользователем
-        timeSlots.forEach(slot => {
-            const time = slot.textContent;
-            if (hasUserBooked(userId, date, time)) {
-                slot.classList.add('selected');
+        // При загрузке страницы проверяем и отмечаем забронированные слоты
+        window.addEventListener('load', function() {
+            const bookings = getBookings();
+            
+            timeSlots.forEach(slot => {
+                const time = slot.textContent;
+                
+                // Проверяем есть ли бронь для этого времени
+                if (hasUserBooked(userId, date, time)) {
+                    // Отмечаем слот как выбранный
+                    slot.classList.add('selected');
+                    
+                    // Обновляем заголовок со временем
+                    document.querySelector('.time-box h1').textContent = time;
+                    
+                    // Обновляем счетчик броней
+                    const count = getBookingsCount(date, time);
+                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                    document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
+                }
+                
+                // Показываем общее количество броней для каждого времени
                 const count = getBookingsCount(date, time);
-                infoElement.textContent = `${count} человек забронировали слот\nна это время`;
-            }
+                if (count > 0) {
+                    console.log(`Время ${time}: ${count} бронирований`);
+                }
+            });
         });
 
         // Обработчик клика по временному слоту
@@ -462,58 +479,61 @@
                 if (this.classList.contains('disabled')) {
                     return;
                 }
-                
-                if (hasUserBooked(userId, date, time)) {
-                    return;
-                }
 
+                // Убираем класс selected со всех слотов, кроме забронированных
                 timeSlots.forEach(s => {
                     if (!hasUserBooked(userId, date, s.textContent)) {
                         s.classList.remove('selected');
                     }
                 });
 
+                // Добавляем класс selected к кликнутому слоту
                 this.classList.add('selected');
                 document.querySelector('.time-box h1').textContent = time;
                 
-                // Обновляем счетчик
+                // Обновляем отображение количества
                 const count = getBookingsCount(date, time);
                 const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
-                infoElement.textContent = `${count} ${wordForm}\nна это время`;
+                document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
             });
         });
 
-        // Автообновление счетчика
-        setInterval(() => {
-            const selectedSlot = document.querySelector('.time-slot.selected');
-            if (selectedSlot) {
-                const time = selectedSlot.textContent;
-                const count = getBookingsCount(date, time);
-                const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
-                infoElement.textContent = `${count} ${wordForm}\nна это время`;
-            }
-        }, 5000);
-
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedTime = document.querySelector('.time-slot.selected')?.textContent;
-            if (selectedTime) {
-                if (addBooking(userId, date, selectedTime)) {
-                    window.location.href = `./success.html?user_id=${userId}&username=${username}`;
+            const selectedSlot = document.querySelector('.time-slot.selected:not(.booked)');
+            if (!selectedSlot) {
+                alert('Пожалуйста, выберите время');
+                return;
+            }
+
+            const selectedTime = selectedSlot.textContent;
+            
+            // Проверяем, не забронировано ли уже это время
+            if (!hasUserBooked(userId, date, selectedTime)) {
+                // Сохраняем бронь
+                if (saveBooking(userId, date, selectedTime)) {
+                    selectedSlot.classList.add('booked');
+                    
+                    // Обновляем счетчик
+                    const count = getBookingsCount(date, selectedTime);
+                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                    document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
+
+                    // Показываем уведомление
+                    const [day, month] = date.split('.');
+                    const months = ['января', 'февраля', 'марта', 'апреля'];
+                    const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
+                    showConfirmation(formattedDate, selectedTime);
                 }
             }
         });
 
-        // Обработчики закрытия
-        document.querySelector('.close-button').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector('.overlay').style.display = 'none';
-            document.querySelector('.confirmation-popup').style.display = 'none';
-        });
-
+        // Обработчик кнопки "Больше привилегий"
         document.querySelector('.privileges-btn').addEventListener('click', function() {
-            // Открываем ссылку в новом окне/вкладке
-            window.open('https://msk.t2.ru/bolshe/katok?utm_source=telegram&utm_medium=miniapp', '_blank');
+            // Сначала закрываем попап
+            closePopup();
+            // Затем переходим на страницу успеха
+            window.location.href = `./success.html?user_id=${userId}&username=${username}`;
         });
 
         function showConfirmation(date, time) {
@@ -533,6 +553,13 @@
             document.querySelector('.overlay').style.display = 'block';
             document.querySelector('.confirmation-popup').style.display = 'block';
         }
+
+        // Обработчики закрытия
+        document.querySelector('.close-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('.overlay').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+        });
 
         function closePopup() {
             document.querySelector('.overlay').style.display = 'none';
