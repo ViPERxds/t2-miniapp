@@ -61,14 +61,19 @@
 
         .back-link {
             color: #FF3495;
-            text-decoration: none;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-skip-ink: none;
             font-size: 16px;
-            font-family: 'T2 Rooftop', sans-serif;
-            font-weight: 900;
+            font-family: 'RooftopRegular', sans-serif;
+            font-weight: normal;
             background: none;
             border: none;
             padding: 0;
+            margin: 0;
             cursor: pointer;
+            line-height: 1;
+            letter-spacing: -0.2px;
         }
 
         .time-box {
@@ -156,6 +161,7 @@
             font-weight: normal;
             margin-bottom: 8px;
             white-space: pre-line;
+            font-size: 16px;
         }
 
         .join-btn {
@@ -222,8 +228,8 @@
         }
 
         .confirmation-text {
-            background-color: #FF1C7D;
-            color: white;
+            background-color: #FFFFFF;  /* Меняем с розового на белый */
+            color: #000000;            /* Меняем с белого на черный */
             padding: 16px 48px 16px 16px;
             border-radius: 12px;
             font-size: 16px;
@@ -235,10 +241,10 @@
         }
 
         .close-button {
+            color: #000000;  /* Меняем цвет крестика на черный */
             position: absolute;
             right: 16px;
             top: 12px;
-            color: white;
             font-size: 32px;
             cursor: pointer;
             z-index: 9999;
@@ -281,6 +287,7 @@
             border: none;
             cursor: pointer;
             font-weight: 900;
+            white-space: nowrap;  /* Текст в одну строку */
         }
 
         /* Добавляем правильные шрифты */
@@ -371,8 +378,7 @@
                 (Павильон 1)
             </div>
         </div>
-        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ<br>
-ОТ t2</button>
+        <button class="privileges-btn">ЕЩЕ БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
     </div>
 
     <script>
