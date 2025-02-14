@@ -388,21 +388,12 @@
         // В начале файла добавим определение базового URL
         const baseUrl = '/t2-rink'; // Имя вашего репозитория на GitHub
 
-        // В начале скрипта добавим функции для работы с бронированиями
+        // Функции для работы с localStorage
         function getBookings() {
             return JSON.parse(localStorage.getItem('bookings') || '{}');
         }
 
-        function saveBooking(userId, date, time) {
-            const bookings = getBookings();
-            if (!bookings[date]) bookings[date] = {};
-            if (!bookings[date][time]) bookings[date][time] = [];
-            
-            // Проверяем, не забронировал ли уже этот пользователь это время
-            if (!bookings[date][time].includes(userId)) {
-                bookings[date][time].push(userId);
-            }
-            
+        function saveBookings(bookings) {
             localStorage.setItem('bookings', JSON.stringify(bookings));
         }
 
@@ -414,6 +405,22 @@
         function hasUserBooked(userId, date, time) {
             const bookings = getBookings();
             return bookings[date]?.[time]?.includes(userId) || false;
+        }
+
+        function addBooking(userId, date, time) {
+            const bookings = getBookings();
+            if (!bookings[date]) {
+                bookings[date] = {};
+            }
+            if (!bookings[date][time]) {
+                bookings[date][time] = [];
+            }
+            if (!bookings[date][time].includes(userId)) {
+                bookings[date][time].push(userId);
+                saveBookings(bookings);
+                return true;
+            }
+            return false;
         }
 
         // Получаем параметры из URL
@@ -469,14 +476,14 @@
                 this.classList.add('selected');
                 document.querySelector('.time-box h1').textContent = time;
                 
-                // Обновляем счетчик для выбранного времени
+                // Обновляем счетчик
                 const count = getBookingsCount(date, time);
                 const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
                 infoElement.textContent = `${count} ${wordForm}\nна это время`;
             });
         });
 
-        // Добавляем только автообновление счетчика
+        // Автообновление счетчика
         setInterval(() => {
             const selectedSlot = document.querySelector('.time-slot.selected');
             if (selectedSlot) {
@@ -489,39 +496,10 @@
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
-            const selectedSlot = document.querySelector('.time-slot.selected');
-            if (!selectedSlot) {
-                alert('Пожалуйста, выберите время');
-                return;
-            }
-
-            const selectedTime = selectedSlot.textContent;
-            const displayedTime = document.querySelector('.time-box h1').textContent;
-            
-            // Форматируем дату
-            const [day, month] = date.split('.');
-            const months = ['января', 'февраля', 'марта', 'апреля'];
-            const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
-            
-            // Показываем уведомление
-            showConfirmation(formattedDate, displayedTime);
-
-            // Сохраняем бронь
-            saveBooking(userId, date, displayedTime);
-            
-            // Отправляем данные в Telegram
-            if (window.Telegram && window.Telegram.WebApp) {
-                const data = {
-                    date: date,
-                    time: displayedTime,
-                    user_id: userId,
-                    username: username
-                };
-                
-                try {
-                    window.Telegram.WebApp.sendData(JSON.stringify(data));
-                } catch (error) {
-                    console.error('Error:', error);
+            const selectedTime = document.querySelector('.time-slot.selected')?.textContent;
+            if (selectedTime) {
+                if (addBooking(userId, date, selectedTime)) {
+                    window.location.href = `./success.html?user_id=${userId}&username=${username}`;
                 }
             }
         });
@@ -570,24 +548,6 @@
         window.addEventListener('beforeunload', () => {
             clearInterval(updateInterval);
         });
-
-        // Функция для создания бронирования
-        function createBooking(userId, date, time) {
-            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-            const key = `${date}_${time}`;
-            
-            if (!bookings[key]) {
-                bookings[key] = [];
-            }
-            
-            if (!bookings[key].includes(userId)) {
-                bookings[key].push(userId);
-                localStorage.setItem('bookings', JSON.stringify(bookings));
-                return true;
-            }
-            
-            return false;
-        }
 
         // Изменим все пути на абсолютные
         document.getElementById('register-button').onclick = function () {
