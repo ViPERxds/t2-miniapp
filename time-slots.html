@@ -451,14 +451,6 @@
             infoElement.textContent = `${count} ${wordForm}\nна это время`;
         }
 
-        // Обновление каждые 30 секунд
-        const updateInterval = setInterval(() => {
-            const selectedTime = document.querySelector('.selected')?.querySelector('h1')?.textContent;
-            if (selectedTime) {
-                updateBookingsCount(date, selectedTime);
-            }
-        }, 30000);
-
         // WebSocket подключение для мгновенных обновлений
         const ws = new WebSocket('ws://your-server/bookings');
         ws.onmessage = function(event) {
@@ -494,6 +486,15 @@
                 updateBookingsCount(date, time);
             });
         });
+
+        // Автообновление каждые 30 секунд только для выбранного слота
+        const updateInterval = setInterval(() => {
+            const selectedSlot = document.querySelector('.time-slot.selected');
+            if (selectedSlot) {
+                const time = selectedSlot.textContent;
+                updateBookingsCount(date, time);
+            }
+        }, 30000);
 
         // Обработчик кнопки "Присоединиться"
         document.querySelector('.join-btn').addEventListener('click', function() {
