@@ -1,1 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор времени</title>
+    <style>
+        @font-face {
+            font-family: 'HalvarBreitBlack';
+            src: url('fonts/T2HalvarBreit-Black.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'RooftopRegular';
+            src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
+        }
+
+        @font-face {
+            font-family: 'T2HalvarBreitExtraBold';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 375px;
+            height: 100vh;
+            background: white;
+            position: relative;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mobile-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            color: #FF3495;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-skip-ink: none;
+            font-size: 15px;
+            font-family: 'RooftopRegular', sans-serif;
+            font-weight: normal;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            line-height: 1;
+            letter-spacing: -0.2px;
+        }
+
+        .time-box {
+            background-color: #000;
+            padding: 8px 12px 15px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            min-height: 180px;
+            position: relative;
+        }
+
+        .time-box h1 {
+            color: white;
+            font-size: 64px;
+            margin: 0;
+            letter-spacing: 1px;
+            font-weight: 900;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            line-height: 0.9;
+        }
+
+        .time-box .date {
+            color: #FF1C7D;
+            font-size: 64px;
+            margin: 0;
+            letter-spacing: 1px;
+            font-weight: 900;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            display: block;
+            line-height: 0.9;
+        }
+
+        .time-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 0;
+        }
+
+        .time-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .time-slot {
+            flex: 1;
+            background-color: #000000;  /* Черный фон по умолчанию */
+            padding: 12px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: 900;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            color: #FFFFFF;  /* Белый текст */
+            transition: all 0.2s ease;
+        }
+
+        .time-slot.disabled {
+            background-color: #FFFFFF;  /* Меняем на белый цвет */
+            color: #666666;  /* Серый цвет текста */
+            cursor: not-allowed;
+        }
+
+        .time-slot.selected, 
+        .time-slot.active {
+            background-color: #FF3495;  /* Розовый цвет для активного/выбранного слота */
+            color: white;
+        }
+
+        .time-slot.double {
+            flex: 2;
+        }
+
+        .participants-info {
+            background-color: #000;
+            color: white;
+            padding: 15px 15px 45px 15px;
+            border-radius: 12px;
+            font-family: 'T2 Rooftop', sans-serif;
+            min-height: 140px;
+            display: block;
+            line-height: 1.2;
+            font-weight: normal;
+            margin-bottom: 8px;
+            white-space: pre-line;
+            font-size: 16px;
+            text-decoration: none;  /* Убираем подчеркивание */
+        }
+
+        .join-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #A7FC00;
+            border: none;
+            border-radius: 12px;
+            font-family: 'T2 Halvar Breit XBd', sans-serif;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            margin: 0;
+            color: #000 !important;
+        }
+
+        /* Специальный шрифт только для нужных элементов */
+        .time-box h1,
+        .time-box .date,
+        .time-slot,
+        .join-btn {
+            font-family: 'T2 Halvar Breit XBd', sans-serif;
+        }
+
+        /* Добавляем стили для контейнера контента */
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-title {
+            color: #FF3495;
+            font-size: 48px;
+            margin: 0;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+        }
+
+        /* Обновляем стили для всплывающих элементов */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            display: none;
+        }
+
+        .confirmation-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 375px;
+            z-index: 1002;
+            display: none;
+            background: transparent;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .confirmation-text {
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'RooftopRegular', sans-serif;
+            line-height: 1.4;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .close-button {
+            color: #000000;  /* Меняем цвет крестика на черный */
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 9999;
+            opacity: 1;
+            font-family: system-ui;
+            font-weight: 300;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .privileges-btn-container {
+            background-color: #A7FC00;
+            position: fixed;
+            top: calc(45% + 45px);
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 355px;
+            max-width: calc(100% - 40px);
+            z-index: 1000;
+            display: none;
+            border-radius: 15px;
+            padding: 0;
+            height: 55px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .privileges-btn {
+            background-color: #A7FC00;
+            color: black;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'T2HalvarBreitExtraBold', sans-serif;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            font-weight: 900;
+            white-space: nowrap;  /* Текст в одну строку */
+        }
+
+        /* Добавляем правильные шрифты */
+        @font-face {
+            font-family: 'T2 Rooftop';
+            src: url('fonts/T2_Rooftop-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'T2 Halvar Breit XBd';
+            src: url('fonts/T2HalvarBreit-ExtraBold.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .time-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .cleaning-notice {
+            color: #FFFFFF;
+            font-size: 16px;
+            font-family: 'T2RooftopRegular', sans-serif;
+            opacity: 1;
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+        }
+
+        /* Стили для слотов */
+        .time-slot.booked {
+            background-color: #FF3495 !important;
+            color: white !important;
+        }
+        .time-slot.selected {
+            background-color: #FF3495 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <div class="content-wrapper">
+            <div class="header">
+                <button class="back-link" onclick="window.location.href='./calendar.html?user_id=${userId}&username=${username}'">Назад</button>
+            </div>
+
+            <div class="time-box">
+                <h1>17:00</h1>
+                <div class="date">05.02</div>
+                <div class="cleaning-notice">С 15:00 до 17:00 производится чистка льда</div>
+            </div>
+
+            <div class="time-rows">
+                <div class="time-row">
+                    <div class="time-slot">11:00</div>
+                    <div class="time-slot">12:00</div>
+                    <div class="time-slot">13:00</div>
+                    <div class="time-slot">14:00</div>
+                </div>
+                <div class="time-row">
+                    <div class="time-slot disabled">15:00</div>
+                    <div class="time-slot disabled">16:00</div>
+                    <div class="time-slot">17:00</div>
+                    <div class="time-slot">18:00</div>
+                </div>
+                <div class="time-row">
+                    <div class="time-slot">19:00</div>
+                    <div class="time-slot">20:00</div>
+                    <div class="time-slot">21:00</div>
+                    <div class="time-slot">22:00</div>
+                </div>
+            </div>
+
+            <div class="participants-info" id="participants-info">
+                0 человек забронировали слот
+                на это время
+            </div>
+
+            <button class="join-btn">ПРИСОЕДИНИТЬСЯ</button>
+        </div>
+    </div>
+
+    <!-- Добавляем HTML для всплывающего уведомления -->
+    <div class="overlay"></div>
+    <div class="confirmation-popup">
+        <div class="confirmation-text">
+            <span class="close-button">✕</span>
+            <div class="popup-content">
+                Ждем тебя <span class="date-text"></span> в <span class="time-text"></span><br>
+                около брендированной фотозоны t2<br>
+                (Павильон 1).
+                <br>
+                <br>
+                Просьба учесть, что необходимо купить билет для доступа в Павильон 1.
+            </div>
+        </div>
+        <button class="privileges-btn">БОЛЬШЕ ПРИВИЛЕГИЙ ОТ t2</button>
+    </div>
+
+    <script>
+        // В самом начале JavaScript
+        // Получаем параметры из URL правильно
+        const searchParams = new URLSearchParams(window.location.search);
+        const userId = searchParams.get('user_id');
+        let date = searchParams.get('date');
+
+        // Если дата не передана, берем текущую
+        if (!date) {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            date = `${day}.${month}`;
+        }
+
+        console.log('UserId:', userId);
+        console.log('Date:', date);
+
+        // В начале файла добавим определение базового URL
+        const baseUrl = '/t2-rink'; // Имя вашего репозитория на GitHub
+
+        // Функции для работы с API
+        async function getBookingsCount(date, time) {
+            try {
+                const response = await fetch(`get_bookings.php?date=${date}&time=${time}`);
+                const data = await response.json();
+                return data.count;
+            } catch (error) {
+                console.error('Ошибка при получении броней:', error);
+                return 0;
+            }
+        }
+
+        async function hasUserBooked(userId, date, time) {
+            try {
+                const response = await fetch(`check_booking.php?userId=${userId}&date=${date}&time=${time}`);
+                const data = await response.json();
+                return data.hasBooked;
+            } catch (error) {
+                console.error('Ошибка при проверке брони:', error);
+                return false;
+            }
+        }
+
+        async function saveBooking(userId, date, time) {
+            try {
+                const response = await fetch('save_booking.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, date, time })
+                });
+                const data = await response.json();
+                return data.success;
+            } catch (error) {
+                console.error('Ошибка при сохранении брони:', error);
+                return false;
+            }
+        }
+
+        // Устанавливаем дату в заголовок
+        const timeBox = document.querySelector('.time-box');
+        timeBox.innerHTML = `
+            <h1>17:00</h1>
+            <div class="date">${date}</div>
+            <div class="cleaning-notice">С 15:00 до 17:00 производится чистка льда</div>
+        `;
+
+        // Обработка временных слотов
+        const timeSlots = document.querySelectorAll('.time-slot');
+        const infoElement = document.getElementById('participants-info');
+        
+        // Изначально показываем 0 человек
+        infoElement.textContent = '0 человек забронировали слот\nна это время';
+
+        // При загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Показываем дату в заголовке
+            document.querySelector('.time-box .date').textContent = date;
+            
+            // Проверяем каждый слот
+            for (const slot of timeSlots) {
+                const time = slot.textContent;
+                console.log('Checking slot:', time);
+                
+                try {
+                    // Проверяем бронь
+                    const checkResponse = await fetch(`check_booking.php?userId=${userId}&date=${date}&time=${time}`);
+                    const checkData = await checkResponse.json();
+                    console.log('Check response:', checkData);
+                    
+                    if (checkData.hasBooked) {
+                        console.log('Slot is booked:', time);
+                        slot.classList.add('booked');
+                        
+                        // Получаем количество бронирований
+                        const countResponse = await fetch(`get_bookings.php?date=${date}&time=${time}`);
+                        const countData = await countResponse.json();
+                        console.log('Count response:', countData);
+                        
+                        const wordForm = countData.count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                        document.querySelector('.participants-info').textContent = 
+                            `${countData.count} ${wordForm}\nна это время`;
+                    }
+                } catch (error) {
+                    console.error('Error checking slot:', time, error);
+                }
+            }
+        });
+
+        // Обработчик клика по временному слоту
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', async function() {
+                const time = this.textContent;
+                
+                if (this.classList.contains('disabled')) {
+                    return;
+                }
+
+                // Убираем выделение с незабронированных слотов
+                timeSlots.forEach(s => {
+                    if (!s.classList.contains('booked')) {
+                        s.classList.remove('selected');
+                    }
+                });
+
+                // Выделяем кликнутый слот
+                if (!this.classList.contains('booked')) {
+                    this.classList.add('selected');
+                }
+                
+                document.querySelector('.time-box h1').textContent = time;
+                
+                // Обновляем счетчик
+                const count = await getBookingsCount(date, time);
+                const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
+            });
+        });
+
+        // Обработчик кнопки "Присоединиться"
+        document.querySelector('.join-btn').addEventListener('click', async function() {
+            const selectedSlot = document.querySelector('.time-slot.selected');
+            if (!selectedSlot) {
+                alert('Пожалуйста, выберите время');
+                return;
+            }
+
+            const selectedTime = selectedSlot.textContent;
+            
+            try {
+                // Сохраняем бронь
+                const success = await saveBooking(userId, date, selectedTime);
+                if (success) {
+                    selectedSlot.classList.remove('selected');
+                    selectedSlot.classList.add('booked');
+                    
+                    // Обновляем счетчик
+                    const count = await getBookingsCount(date, selectedTime);
+                    const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                    document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
+
+                    // Показываем уведомление
+                    const [day, month] = date.split('.');
+                    const months = ['января', 'февраля', 'марта', 'апреля'];
+                    const formattedDate = `${parseInt(day)} ${months[parseInt(month) - 1]}`;
+                    showConfirmation(formattedDate, selectedTime);
+                }
+            } catch (error) {
+                console.error('Ошибка при сохранении брони:', error);
+            }
+        });
+
+        // Обработчик кнопки "Больше привилегий"
+        document.querySelector('.privileges-btn').addEventListener('click', function() {
+            // Закрываем попап
+            closePopup();
+            // Переходим на сайт T2
+            window.location.href = 'https://msk.t2.ru/bolshe/katok?utm_source=telegram&utm_medium=miniapp';
+        });
+
+        function showConfirmation(date, time) {
+            // Убираем предыдущий активный слот
+            document.querySelectorAll('.time-slot.active').forEach(slot => {
+                slot.classList.remove('active');
+            });
+            
+            // Добавляем активный класс к выбранному слоту
+            const selectedSlot = Array.from(document.querySelectorAll('.time-slot')).find(slot => slot.textContent === time);
+            if (selectedSlot) {
+                selectedSlot.classList.add('active');
+            }
+            
+            document.querySelector('.date-text').textContent = date;
+            document.querySelector('.time-text').textContent = time;
+            document.querySelector('.overlay').style.display = 'block';
+            document.querySelector('.confirmation-popup').style.display = 'block';
+        }
+
+        // Обработчики закрытия
+        document.querySelector('.close-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('.overlay').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+        });
+
+        function closePopup() {
+            document.querySelector('.overlay').style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+        }
+
+        document.querySelector('.overlay').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.querySelector('.confirmation-popup').style.display = 'none';
+        });
+
+        // Функция обновления счетчика
+        async function updateCounter() {
+            const selectedSlot = document.querySelector('.time-slot.selected');
+            if (selectedSlot) {
+                const time = selectedSlot.textContent;
+                const count = await getBookingsCount(date, time);
+                const wordForm = count === 1 ? 'человек забронировал слот' : 'человек забронировали слот';
+                document.querySelector('.participants-info').textContent = `${count} ${wordForm}\nна это время`;
+            }
+        }
+
+        // Обновляем счетчик каждые 5 секунд
+        setInterval(updateCounter, 5000);
+
+        // Очищаем интервал при уходе со страницы
+        let updateInterval = setInterval(updateCounter, 5000);
+        window.addEventListener('beforeunload', () => {
+            clearInterval(updateInterval);
+        });
+
+        // Изменим все пути на абсолютные
+        document.getElementById('register-button').onclick = function () {
+            window.location.href = `${baseUrl}/calendar.html?user_id=${userId}&username=${username}`;
+        };
+    </script>
+</body>
+</html> 
 
