@@ -270,6 +270,11 @@
             bottom: 12px;
             left: 12px;
         }
+
+        .calendar-day.booked {
+            background-color: #FF3495 !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body>
@@ -328,24 +333,16 @@
         const userId = urlParams.get('user_id');
         const username = urlParams.get('username');
 
-        // Функция для проверки бронирований
-        function getBookedDates(userId) {
-            const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
-            const bookedDates = [];
-            
-            // Проходим по всем датам
-            for (const date in bookings) {
-                // Проходим по всем временам в дате
-                for (const time in bookings[date]) {
-                    // Если пользователь забронировал это время
-                    if (bookings[date][time].includes(userId)) {
-                        bookedDates.push(date);
-                        break; // Переходим к следующей дате
-                    }
-                }
+        // Функция для получения забронированных дат
+        async function getBookedDates(userId) {
+            try {
+                const response = await fetch(`get_booked_dates.php?userId=${userId}`);
+                const data = await response.json();
+                return data.dates || [];
+            } catch (error) {
+                console.error('Ошибка при получении дат:', error);
+                return [];
             }
-            
-            return bookedDates;
         }
 
         // Модифицируем функцию generateCalendar
@@ -354,7 +351,7 @@
             calendar.innerHTML = '';
 
             // Получаем забронированные даты для текущего пользователя
-            const bookedDates = getBookedDates(userId);
+            const bookedDates = await getBookedDates(userId);
 
             // Добавляем дни недели
             const weekdays = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
@@ -459,6 +456,20 @@
         document.addEventListener('DOMContentLoaded', function() {
             const currentMonth = new Date().getMonth();
             document.querySelector('.month-selector span:first-child').textContent = monthNames[currentMonth];
+        });
+
+        // При загрузке календаря
+        window.addEventListener('load', async function() {
+            // Получаем забронированные даты
+            const bookedDates = await getBookedDates(userId);
+            
+            // Подсвечиваем даты с бронированиями
+            document.querySelectorAll('.date').forEach(day => {
+                const date = day.textContent.trim();
+                if (bookedDates.includes(date)) {
+                    day.classList.add('booked');
+                }
+            });
         });
     </script>
 </body>
