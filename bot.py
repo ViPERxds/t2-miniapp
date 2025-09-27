@@ -1,15 +1,6 @@
 import telebot
 import os
-from telebot.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
-
-# Инициализация бота
-BOT_TOKEN = '7940253060:AAE6HFJGi0tbipn1nxsmnZ8lOk5ykTkK6PI' 
-bot = telebot.TeleBot(BOT_TOKEN)
-
-# Базовый URL вашего веб-приложения
-WEBAPP_URL = 'https://your-domain.com'  # Замените на ваш домен
-
-@bot.message_handler(commands=['start'])
+ф
 def start(message):
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(
@@ -43,4 +34,5 @@ def web_app_handler(message):
 # Запуск бота
 if __name__ == "__main__":
     print("Бот запущен...")
+
     bot.polling(none_stop=True) 
